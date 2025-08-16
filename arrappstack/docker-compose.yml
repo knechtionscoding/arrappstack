@@ -18,10 +18,11 @@ services:
       - 8191:8191
       - 9696:9696
     environment: #https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
-      - VPN_SERVICE_PROVIDER=
-      - OPENVPN_USER=
-      - OPENVPN_PASSWORD=
-      - SERVER_REGIONS=United States
+      - VPN_SERVICE_PROVIDER=mullvad
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=10.70.230.29/32
+      - SERVER_COUNTRIES=Switzerland
     restart: always
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
@@ -43,9 +44,9 @@ services:
     environment: 
       - PUID=1000
       - PGID=1000
-      - TZ=America/Chicago
+      - TZ=Europe/Stockholm
     volumes:
-    - /datastore/data:/data
+    - /volume1/data:/data
     - /docker/appdata/sonarr:/config
     restart: always
   radarr:
@@ -55,10 +56,10 @@ services:
     environment:
     - PUID=1000
     - PGID=1000
-    - TZ=America/Chicago
+    - TZ=Europe/Stockholm
     volumes:
     - /docker/appdata/radarr:/config
-    - /datastore/data:/data
+    - /volume1/data:/data
     restart: always
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -67,10 +68,10 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Chicago
+      - TZ=Europe/Stockholm
     volumes:
       - /docker/appdata/qbittorrent:/config
-      - /datastore/data/torrents:/downloads
+      - /volume1/data/torrents:/downloads
     restart: always
   swaparr-radarr:
     image: ghcr.io/thijmengthn/swaparr:latest
