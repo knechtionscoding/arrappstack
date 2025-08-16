@@ -80,7 +80,7 @@ services:
     restart: always
     environment:
       - BASEURL=http://127.0.0.1:7878 # IP or FQDN           (Required)
-      - APIKEY=                       # Radarr API Key       (Required)                
+      - APIKEY=${RADARR_API_KEY}      # Radarr API Key       (Required)                
       - PLATFORM=radarr               # "radarr", "sonarr".. (Optional) default: radarr
       - TIME_THRESHOLD=2h             # 1d, 6h, 30m, etc..   (Optional) default: 2h    
       - SIZE_THRESHOLD=25GB           # 1TB, 1GB, 1MB, etc.. (Optional) default: 25GB  
@@ -96,7 +96,7 @@ services:
     restart: always
     environment:
       - BASEURL=http://127.0.0.1:8989 # IP or FQDN           (Required)
-      - APIKEY=                       # Sonarr API Key       (Required)                
+      - APIKEY=${SONARR_API_KEY}       # Sonarr API Key       (Required)                
       - PLATFORM=sonarr               # "radarr", "sonarr".. (Optional) default: radarr
       - TIME_THRESHOLD=2h             # 1d, 6h, 30m, etc..   (Optional) default: 2h    
       - SIZE_THRESHOLD=25GB           # 1TB, 1GB, 1MB, etc.. (Optional) default: 25GB  
