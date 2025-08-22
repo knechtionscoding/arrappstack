@@ -31,7 +31,7 @@ services:
       - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
     restart: always
   flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: ghcr.io/thephaseless/byparr:latest
     container_name: flaresolverr
     network_mode: service:gluetun
     environment:
