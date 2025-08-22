@@ -52,6 +52,7 @@ services:
   whisparr:
     image: ghcr.io/thespad/whisparr:latest
     container_name: whisparr
+    network_mode: service:gluetun
     environment:
       - PUID=1000
       - PGID=1000
