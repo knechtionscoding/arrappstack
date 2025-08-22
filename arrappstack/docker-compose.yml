@@ -145,6 +145,8 @@ services:
       - VERSION=docker
       - HOSTNAME=PlexServer
       # - PLEX_CLAIM=claim-xxxx   # optional
+      - PLEX_UID=1000
+      - PLEX_GID=1000
     volumes:
       - /docker/appdata/plex:/config
       - /volume1/data/media:/data/media
