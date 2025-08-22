@@ -61,8 +61,6 @@ services:
     volumes:
       - /docker/appdata/whisparr:/config
       - /volume1/data:/data
-    ports:
-      - 6969:6969
     restart: always    
   radarr:
     image: lscr.io/linuxserver/radarr:latest
