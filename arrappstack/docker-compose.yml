@@ -17,6 +17,7 @@ services:
       - 8388:8388/udp # Shadowsocks
       - 8191:8191
       - 9696:9696
+      - 6969:6969
     environment: #https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=wireguard
