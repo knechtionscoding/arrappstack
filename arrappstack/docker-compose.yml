@@ -49,6 +49,19 @@ services:
     - /volume1/data:/data
     - /docker/appdata/sonarr:/config
     restart: always
+  whisparr:
+    image: ghcr.io/thespad/whisparr:latest
+    container_name: whisparr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - /docker/appdata/whisparr:/config
+      - /volume1/data:/data
+    ports:
+      - 6969:6969
+    restart: always    
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
