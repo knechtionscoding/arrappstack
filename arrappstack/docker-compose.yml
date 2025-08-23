@@ -1,6 +1,5 @@
 ---
 
-version: "3"
 services:
   gluetun:
     image: qmcgaw/gluetun
@@ -9,6 +8,8 @@ services:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
+    sysctls:
+    - net.ipv6.conf.all.disable_ipv6=0
     ports:
       - 8989:8989   # Sonarr
       - 7878:7878   # Radarr
@@ -21,28 +22,36 @@ services:
       - 3579:3579   # Ombi
       - 8083:80     # Heimdall (HTTP)
       - 8443:443    # Heimdall (HTTPS)
-
     environment: #https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=wireguard
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_ADDRESSES=10.70.230.29/32,fc00:bbbb:bbbb:bb01::7:e61c/128
+      - WIREGUARD_ADDRESSES=10.70.230.29/32
       - SERVER_COUNTRIES=Switzerland
       - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
+      - WIREGUARD_ALLOWED_IPS=0.0.0.0/0
     restart: always
   flaresolverr:
-    image: ghcr.io/thephaseless/byparr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
     network_mode: service:gluetun
+    # shm_size: 2gb
     environment:
       - LOG_LEVEL=info
+      # - USE_HEADLESS=true
     restart: always
+    depends_on:
+      gluetun:
+        condition: service_healthy
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     network_mode: service:gluetun
     volumes:
       - /docker/appdata/prowlarr:/config
+    depends_on:
+      gluetun:
+        condition: service_healthy
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr 
@@ -55,6 +64,9 @@ services:
     - /volume1/data:/data
     - /docker/appdata/sonarr:/config
     restart: always
+    depends_on:
+      gluetun:
+        condition: service_healthy
   whisparr:
     image: ghcr.io/thespad/whisparr:latest
     container_name: whisparr
@@ -66,7 +78,10 @@ services:
     volumes:
       - /docker/appdata/whisparr:/config
       - /volume1/data:/data
-    restart: always    
+    restart: always
+    depends_on:
+      gluetun:
+        condition: service_healthy
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
@@ -79,6 +94,9 @@ services:
     - /docker/appdata/radarr:/config
     - /volume1/data:/data
     restart: always
+    depends_on:
+      gluetun:
+        condition: service_healthy
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
@@ -91,6 +109,9 @@ services:
       - /docker/appdata/qbittorrent:/config
       - /volume1/data/torrents:/downloads
     restart: always
+    depends_on:
+      gluetun:
+        condition: service_healthy
   swaparr-radarr:
     image: ghcr.io/thijmengthn/swaparr:latest
     container_name: swaparr-radarr
@@ -105,6 +126,9 @@ services:
       - CHECK_INTERVAL=10m            # 1d, 6h, 30m, etc..   (Optional) default: 10m   
       - STRIKE_THRESHOLD=3            # Positive number      (Optional) default: 3     
       - AGGRESSIVE_STRIKES=true      # Boolean              (Optional) default: false 
+    depends_on:
+      gluetun:
+        condition: service_healthy
 
   # -- (Optional)
   swaparr-sonarr: 
@@ -121,6 +145,9 @@ services:
       - CHECK_INTERVAL=10m            # 1d, 6h, 30m, etc..   (Optional) default: 10m   
       - STRIKE_THRESHOLD=3            # Positive number      (Optional) default: 3     
       - AGGRESSIVE_STRIKES=true      # Boolean              (Optional) default: false
+    depends_on:
+      gluetun:
+        condition: service_healthy
 
   swaparr-whisparr:
     image: ghcr.io/thijmengthn/swaparr:latest
@@ -136,7 +163,9 @@ services:
       - CHECK_INTERVAL=10m            # default: 10m
       - STRIKE_THRESHOLD=3            # default: 3
       - AGGRESSIVE_STRIKES=true       # default: false
-
+    depends_on:
+      gluetun:
+        condition: service_healthy
   plex:
     image: plexinc/pms-docker
     container_name: plex
@@ -153,6 +182,9 @@ services:
     network_mode: host         # required for discovery/remote access
     privileged: true           # fixes occasional libusb issues
     restart: unless-stopped
+    depends_on:
+      gluetun:
+        condition: service_healthy
 
   # ombi:
   #   image: lscr.io/linuxserver/ombi:latest
@@ -177,7 +209,9 @@ services:
     volumes:
       - /docker/appdata/heimdall:/config
     restart: unless-stopped
-
+    depends_on:
+      gluetun:
+        condition: service_healthy
   cross-seed:
     image: ghcr.io/cross-seed/cross-seed:latest
     container_name: cross-seed
@@ -185,10 +219,17 @@ services:
     depends_on:
       - prowlarr
       - qbittorrent
+      - gluetun
     volumes:
       - ./cross-seed:/config
-      - /volume1/data:/data          # so it can see your completed files
-    environment:
-      - TZ=Europe/Stockholm
-    command: ["daemon","--config","/config/config.json"]
+      - /volume1/data/torrents:/downloads   # match qB save path
+    command: ["daemon"]
     restart: unless-stopped
+    environment:
+      - PROWLARR_URL=http://127.0.0.1:9696
+      - PROWLARR_API_KEY=${PROWLARR_API_KEY}
+      - QB_HOST=127.0.0.1:8080
+      - QB_USER=${QB_USER}
+      - QB_PASS=${QB_PASS}
+      - TZ=Europe/Stockholm
+    user: "1000:1000"               # <-- run as PUID 1000 / PGID 1000
