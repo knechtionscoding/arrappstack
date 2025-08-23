@@ -26,7 +26,7 @@ services:
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=wireguard
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_ADDRESSES=10.70.230.29/32
+      - WIREGUARD_ADDRESSES=10.70.230.29/32,fc00:bbbb:bbbb:bb01::7:e61c/128
       - SERVER_COUNTRIES=Switzerland
       - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
     restart: always
@@ -176,4 +176,19 @@ services:
       - TZ=Europe/Stockholm
     volumes:
       - /docker/appdata/heimdall:/config
+    restart: unless-stopped
+
+  cross-seed:
+    image: ghcr.io/cross-seed/cross-seed:latest
+    container_name: cross-seed
+    network_mode: service:gluetun
+    depends_on:
+      - prowlarr
+      - qbittorrent
+    volumes:
+      - ./cross-seed:/config
+      - /volume1/data:/data          # so it can see your completed files
+    environment:
+      - TZ=Europe/Stockholm
+    command: ["daemon","--config","/config/config.json"]
     restart: unless-stopped
