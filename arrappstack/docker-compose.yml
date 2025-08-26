@@ -1,235 +1,281 @@
----
-
-services:
-  gluetun:
-    image: qmcgaw/gluetun
-    container_name: gluetun
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    sysctls:
-    - net.ipv6.conf.all.disable_ipv6=0
-    ports:
-      - 8989:8989   # Sonarr
-      - 7878:7878   # Radarr
-      - 8080:8080   # qBittorrent
-      - 8388:8388/tcp # Shadowsocks
-      - 8388:8388/udp # Shadowsocks
-      - 8191:8191   # FlareSolverr
-      - 9696:9696   # Prowlarr
-      - 6969:6969   # Tracker
-      - 3579:3579   # Ombi
-      - 8083:80     # Heimdall (HTTP)
-      - 8443:443    # Heimdall (HTTPS)
-    environment: #https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers
-      - VPN_SERVICE_PROVIDER=mullvad
-      - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_ADDRESSES=10.70.230.29/32
-      - SERVER_COUNTRIES=Switzerland
-      - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
-      - WIREGUARD_ALLOWED_IPS=0.0.0.0/0
-    restart: always
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
-    network_mode: service:gluetun
-    # shm_size: 2gb
-    environment:
-      - LOG_LEVEL=info
-      # - USE_HEADLESS=true
-    restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
-  prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
-    container_name: prowlarr
-    network_mode: service:gluetun
+---                                                                                                                                                                                                                                                                                         
+                                                                                                                                                                                                                                                                                            
+services:                                                                                                                                                                                                                                                                                   
+  gluetun:                                                                                                                                                                                                                                                                                  
+    image: qmcgaw/gluetun                                                                                                                                                                                                                                                                   
+    container_name: gluetun                                                                                                                                                                                                                                                                 
+    cap_add:                                                                                                                                                                                                                                                                                
+      - NET_ADMIN                                                                                                                                                                                                                                                                           
+    devices:                                                                                                                                                                                                                                                                                
+      - /dev/net/tun:/dev/net/tun                                                                                                                                                                                                                                                           
+    sysctls:                                                                                                                                                                                                                                                                                
+    - net.ipv6.conf.all.disable_ipv6=0                                                                                                                                                                                                                                                      
+    ports:                                                                                                                                                                                                                                                                                  
+      - 8989:8989   # Sonarr                                                                                                                                                                                                                                                                
+      - 7878:7878   # Radarr                                                                                                                                                                                                                                                                
+      - 8080:8080   # qBittorrent                                                                                                                                                                                                                                                           
+      - 8388:8388/tcp # Shadowsocks                                                                                                                                                                                                                                                         
+      - 8388:8388/udp # Shadowsocks                                                                                                                                                                                                                                                         
+      - 8191:8191   # FlareSolverr                                                                                                                                                                                                                                                          
+      - 9696:9696   # Prowlarr                                                                                                                                                                                                                                                              
+      - 6969:6969   # Tracker                                                                                                                                                                                                                                                               
+      - 3579:3579   # Ombi                                                                                                                                                                                                                                                                  
+      - 8083:80     # Heimdall (HTTP)                                                                                                                                                                                                                                                       
+      - 8443:443    # Heimdall (HTTPS)                                                                                                                                                                                                                                                      
+    environment: #https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers                                                                                                                                                                                                           
+      - VPN_SERVICE_PROVIDER=mullvad                                                                                                                                                                                                                                                        
+      - VPN_TYPE=wireguard                                                                                                                                                                                                                                                                  
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}                                                                                                                                                                                                                                      
+      # - WIREGUARD_PRESHARED_KEY=${WIREGUARD_PRESHARED_KEY}                                                                                                                                                                                                                                
+      # - WIREGUARD_ADDRESSES=10.172.168.138/32                                                                                                                                                                                                                                             
+      - WIREGUARD_ADDRESSES=10.67.106.235/32                                                                                                                                                                                                                                                
+      - SERVER_COUNTRIES=Sweden                                                                                                                                                                                                                                                             
+      - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12                                                                                                                                                                                                                   
+      # - FIREWALL_VPN_INPUT_PORTS=${AIRVPN_PF_PORT}                                                                                                                                                                                                                                        
+      - WIREGUARD_ALLOWED_IPS=0.0.0.0/0                                                                                                                                                                                                                                                     
+    restart: always                                                                                                                                                                                                                                                                         
+  flaresolverr:                                                                                                                                                                                                                                                                             
+    image: ghcr.io/flaresolverr/flaresolverr:latest                                                                                                                                                                                                                                         
+    container_name: flaresolverr                                                                                                                                                                                                                                                            
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    # shm_size: 2gb                                                                                                                                                                                                                                                                         
+    environment:                                                                                                                                                                                                                                                                            
+      - LOG_LEVEL=info                                                                                                                                                                                                                                                                      
+      # - USE_HEADLESS=true                                                                                                                                                                                                                                                                 
+    restart: always                                                                                                                                                                                                                                                                         
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+  prowlarr:                                                                                                                                                                                                                                                                                 
+    image: lscr.io/linuxserver/prowlarr:latest                                                                                                                                                                                                                                              
+    container_name: prowlarr                                                                                                                                                                                                                                                                
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    volumes:                                                                                                                                                                                                                                                                                
+      - /docker/appdata/prowlarr:/config                                                                                                                                                                                                                                                    
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+  sonarr:                                                                                                                                                                                                                                                                                   
+    image: lscr.io/linuxserver/sonarr:latest                                                                                                                                                                                                                                                
+    container_name: sonarr                                                                                                                                                                                                                                                                  
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    environment:                                                                                                                                                                                                                                                                            
+      - PUID=1000                                                                                                                                                                                                                                                                           
+      - PGID=1000                                                                                                                                                                                                                                                                           
+      - TZ=Europe/Stockholm                                                                                                                                                                                                                                                                 
+    volumes:                                                                                                                                                                                                                                                                                
+    - /volume1/data:/data                                                                                                                                                                                                                                                                   
+    - /docker/appdata/sonarr:/config                                                                                                                                                                                                                                                        
+    restart: always                                                                                                                                                                                                                                                                         
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+  whisparr:                                                                                                                                                                                                                                                                                 
+    image: ghcr.io/thespad/whisparr:latest                                                                                                                                                                                                                                                  
+    container_name: whisparr                                                                                                                                                                                                                                                                
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    environment:                                                                                                                                                                                                                                                                            
+      - PUID=1000                                                                                                                                                                                                                                                                           
+      - PGID=1000                                                                                                                                                                                                                                                                           
+      - TZ=Europe/Stockholm                                                                                                                                                                                                                                                                 
+    volumes:                                                                                                                                                                                                                                                                                
+      - /docker/appdata/whisparr:/config                                                                                                                                                                                                                                                    
+      - /volume1/data:/data                                                                                                                                                                                                                                                                 
+    restart: always                                                                                                                                                                                                                                                                         
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+  radarr:                                                                                                                                                                                                                                                                                   
+    image: lscr.io/linuxserver/radarr:latest                                                                                                                                                                                                                                                
+    container_name: radarr                                                                                                                                                                                                                                                                  
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    environment:                                                                                                                                                                                                                                                                            
+    - PUID=1000                                                                                                                                                                                                                                                                             
+    - PGID=1000                                                                                                                                                                                                                                                                             
+    - TZ=Europe/Stockholm                                                                                                                                                                                                                                                                   
+    volumes:                                                                                                                                                                                                                                                                                
+    - /docker/appdata/radarr:/config                                                                                                                                                                                                                                                        
+    - /volume1/data:/data                                                                                                                                                                                                                                                                   
+    restart: always                                                                                                                                                                                                                                                                         
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+  qbittorrent:                                                                                                                                                                                                                                                                              
+    image: lscr.io/linuxserver/qbittorrent:latest                                                                                                                                                                                                                                           
+    container_name: qbittorrent                                                                                                                                                                                                                                                             
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    environment:                                                                                                                                                                                                                                                                            
+      - PUID=1000                                                                                                                                                                                                                                                                           
+      - PGID=1000                                                                                                                                                                                                                                                                           
+      - TZ=Europe/Stockholm                                                                                                                                                                                                                                                                 
+    volumes:                                                                                                                                                                                                                                                                                
+      - /docker/appdata/qbittorrent:/config                                                                                                                                                                                                                                                 
+      - /volume1/data/torrents:/downloads                                                                                                                                                                                                                                                   
+    restart: always                                                                                                                                                                                                                                                                         
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+  swaparr-radarr:                                                                                                                                                                                                                                                                           
+    image: ghcr.io/thijmengthn/swaparr:latest                                                                                                                                                                                                                                               
+    container_name: swaparr-radarr                                                                                                                                                                                                                                                          
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    restart: always                                                                                                                                                                                                                                                                         
+    environment:                                                                                                                                                                                                                                                                            
+      - BASEURL=http://127.0.0.1:7878 # IP or FQDN           (Required)                                                                                                                                                                                                                     
+      - APIKEY=${RADARR_API_KEY}      # Radarr API Key       (Required)                                                                                                                                                                                                                     
+      - PLATFORM=radarr               # "radarr", "sonarr".. (Optional) default: radarr                                                                                                                                                                                                     
+      - TIME_THRESHOLD=2h             # 1d, 6h, 30m, etc..   (Optional) default: 2h                                                                                                                                                                                                         
+      - SIZE_THRESHOLD=25GB           # 1TB, 1GB, 1MB, etc.. (Optional) default: 25GB                                                                                                                                                                                                       
+      - CHECK_INTERVAL=10m            # 1d, 6h, 30m, etc..   (Optional) default: 10m                                                                                                                                                                                                        
+      - STRIKE_THRESHOLD=3            # Positive number      (Optional) default: 3                                                                                                                                                                                                          
+      - AGGRESSIVE_STRIKES=true      # Boolean              (Optional) default: false                                                                                                                                                                                                       
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                            
+  # -- (Optional)                                                                                                                                                                                                                                                                           
+  swaparr-sonarr:                                                                                                                                                                                                                                                                           
+    image: ghcr.io/thijmengthn/swaparr:latest                                                                                                                                                                                                                                               
+    container_name: swaparr-sonarr                                                                                                                                                                                                                                                          
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    restart: always                                                                                                                                                                                                                                                                         
+    environment:                                                                                                                                                                                                                                                                            
+      - BASEURL=http://127.0.0.1:8989 # IP or FQDN           (Required)                                                                                                                                                                                                                     
+      - APIKEY=${SONARR_API_KEY}       # Sonarr API Key       (Required)                                                                                                                                                                                                                    
+      - PLATFORM=sonarr               # "radarr", "sonarr".. (Optional) default: radarr                                                                                                                                                                                                     
+      - TIME_THRESHOLD=2h             # 1d, 6h, 30m, etc..   (Optional) default: 2h                                                                                                                                                                                                         
+      - SIZE_THRESHOLD=25GB           # 1TB, 1GB, 1MB, etc.. (Optional) default: 25GB                                                                                                                                                                                                       
+      - CHECK_INTERVAL=10m            # 1d, 6h, 30m, etc..   (Optional) default: 10m                                                                                                                                                                                                        
+      - STRIKE_THRESHOLD=3            # Positive number      (Optional) default: 3                                                                                                                                                                                                          
+      - AGGRESSIVE_STRIKES=true      # Boolean              (Optional) default: false                                                                                                                                                                                                       
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                            
+  swaparr-whisparr:                                                                                                                                                                                                                                                                         
+    image: ghcr.io/thijmengthn/swaparr:latest                                                                                                                                                                                                                                               
+    container_name: swaparr-whisparr                                                                                                                                                                                                                                                        
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    restart: always                                                                                                                                                                                                                                                                         
+    environment:                                                                                                                                                                                                                                                                            
+      - BASEURL=http://127.0.0.1:6969 # Whisparr listens on port 6969                                                                                                                                                                                                                       
+      - APIKEY=${WHISPARR_API_KEY}    # You’ll need to add this in your .env                                                                                                                                                                                                                
+      - PLATFORM=whisparr             # Platform type                                                                                                                                                                                                                                       
+      - TIME_THRESHOLD=2h             # default: 2h                                                                                                                                                                                                                                         
+      - SIZE_THRESHOLD=25GB           # default: 25GB                                                                                                                                                                                                                                       
+      - CHECK_INTERVAL=10m            # default: 10m                                                                                                                                                                                                                                        
+      - STRIKE_THRESHOLD=3            # default: 3                                                                                                                                                                                                                                          
+      - AGGRESSIVE_STRIKES=true       # default: false                                                                                                                                                                                                                                      
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+  plex:                                                                                                                                                                                                                                                                                     
+    image: plexinc/pms-docker                                                                                                                                                                                                                                                               
+    container_name: plex                                                                                                                                                                                                                                                                    
+    environment:                                                                                                                                                                                                                                                                            
+      - TZ=Europe/Stockholm                                                                                                                                                                                                                                                                 
+      - VERSION=docker                                                                                                                                                                                                                                                                      
+      - HOSTNAME=PlexServer                                                                                                                                                                                                                                                                 
+      # - PLEX_CLAIM=claim-xxxx   # optional                                                                                                                                                                                                                                                
+      - PLEX_UID=1000                                                                                                                                                                                                                                                                       
+      - PLEX_GID=1000                                                                                                                                                                                                                                                                       
+    volumes:                                                                                                                                                                                                                                                                                
+      - /docker/appdata/plex:/config                                                                                                                                                                                                                                                        
+      - /volume1/data/media:/data/media                                                                                                                                                                                                                                                     
+    network_mode: host         # required for discovery/remote access                                                                                                                                                                                                                       
+    privileged: true           # fixes occasional libusb issues                                                                                                                                                                                                                             
+    restart: unless-stopped                                                                                                                                                                                                                                                                 
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                            
+  # ombi:                                                                                                                                                                                                                                                                                   
+  #   image: lscr.io/linuxserver/ombi:latest                                                                                                                                                                                                                                                
+  #   container_name: ombi                                                                                                                                                                                                                                                                  
+  #   network_mode: service:gluetun                                                                                                                                                                                                                                                         
+  #   environment:                                                                                                                                                                                                                                                                          
+  #     - PUID=1000                                                                                                                                                                                                                                                                         
+  #     - PGID=1000                                                                                                                                                                                                                                                                         
+  #     - TZ=Europe/Stockholm                                                                                                                                                                                                                                                               
+  #   volumes:                                                                                                                                                                                                                                                                              
+  #     - /docker/appdata/ombi:/config                                                                                                                                                                                                                                                      
+  #   restart: unless-stopped                                                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                            
+  heimdall:                                                                                                                                                                                                                                                                                 
+    image: lscr.io/linuxserver/heimdall:latest                                                                                                                                                                                                                                              
+    container_name: heimdall                                                                                                                                                                                                                                                                
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    environment:                                                                                                                                                                                                                                                                            
+      - PUID=1000                                                                                                                                                                                                                                                                           
+      - PGID=1000                                                                                                                                                                                                                                                                           
+      - TZ=Europe/Stockholm                                                                                                                                                                                                                                                                 
+    volumes:                                                                                                                                                                                                                                                                                
+      - /docker/appdata/heimdall:/config                                                                                                                                                                                                                                                    
+    restart: unless-stopped                                                                                                                                                                                                                                                                 
+    depends_on:                                                                                                                                                                                                                                                                             
+      gluetun:                                                                                                                                                                                                                                                                              
+        condition: service_healthy                                                                                                                                                                                                                                                          
+  # cross-seed:                                                                                                                                                                                                                                                                             
+  #   image: ghcr.io/cross-seed/cross-seed:latest                                                                                                                                                                                                                                           
+  #   container_name: cross-seed                                                                                                                                                                                                                                                            
+  #   network_mode: service:gluetun                                                                                                                                                                                                                                                         
+  #   depends_on:                                                                                                                                                                                                                                                                           
+  #     - prowlarr                                                                                                                                                                                                                                                                          
+  #     - qbittorrent                                                                                                                                                                                                                                                                       
+  #     - gluetun                                                                                                                                                                                                                                                                           
+  #   volumes:                                                                                                                                                                                                                                                                              
+  #     - ./cross-seed:/config                                                                                                                                                                                                                                                              
+  #     - /volume1/data/torrents:/downloads   # match qB save path                                                                                                                                                                                                                          
+  #   command: ["daemon"]                                                                                                                                                                                                                                                                   
+  #   restart: unless-stopped                                                                                                                                                                                                                                                               
+  #   environment:                                                                                                                                                                                                                                                                          
+  #     - PROWLARR_URL=http://127.0.0.1:9696                                                                                                                                                                                                                                                
+  #     - PROWLARR_API_KEY=${PROWLARR_API_KEY}                                                                                                                                                                                                                                              
+  #     - QB_HOST=137.ftl11.seedit4.me/qbittorrent                                                                                                                                                                                                                                          
+  #     - QB_USER=${QB_USER}                                                                                                                                                                                                                                                                
+  #     - QB_PASS=${QB_PASS}                                                                                                                                                                                                                                                                
+  #     - TZ=Europe/Stockholm                                                                                                                                                                                                                                                               
+  #   user: "1000:1000"               # <-- run as PUID 1000 / PGID 1000                                                                                                                                                                                                                    
+  rclone-seedbox-pull:                                                                                                                                                                                                                                                                      
+    image: rclone/rclone:latest                                                                                                                                                                                                                                                             
+    container_name: rclone-seedbox-pull                                                                                                                                                                                                                                                     
+    user: "1000:1000"                                                                                                                                                                                                                                                                       
+    restart: unless-stopped                                                                                                                                                                                                                                                                 
+    network_mode: service:gluetun                                                                                                                                                                                                                                                           
+    environment:                                                                                                                                                                                                                                                                            
+      - TZ=Europe/Stockholm                                                                                                                                                                                                                                                                 
+      - RCLONE_CONFIG=/config/rclone.conf                                                                                                                                                                                                                                                   
     volumes:
-      - /docker/appdata/prowlarr:/config
-    depends_on:
-      gluetun:
-        condition: service_healthy
-  sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
-    container_name: sonarr 
-    network_mode: service:gluetun
-    environment: 
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
-    volumes:
-    - /volume1/data:/data
-    - /docker/appdata/sonarr:/config
-    restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
-  whisparr:
-    image: ghcr.io/thespad/whisparr:latest
-    container_name: whisparr
-    network_mode: service:gluetun
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
-    volumes:
-      - /docker/appdata/whisparr:/config
-      - /volume1/data:/data
-    restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
-  radarr:
-    image: lscr.io/linuxserver/radarr:latest
-    container_name: radarr
-    network_mode: service:gluetun
-    environment:
-    - PUID=1000
-    - PGID=1000
-    - TZ=Europe/Stockholm
-    volumes:
-    - /docker/appdata/radarr:/config
-    - /volume1/data:/data
-    restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
-    network_mode: service:gluetun
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
-    volumes:
-      - /docker/appdata/qbittorrent:/config
-      - /volume1/data/torrents:/downloads
-    restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
-  swaparr-radarr:
-    image: ghcr.io/thijmengthn/swaparr:latest
-    container_name: swaparr-radarr
-    network_mode: service:gluetun
-    restart: always
-    environment:
-      - BASEURL=http://127.0.0.1:7878 # IP or FQDN           (Required)
-      - APIKEY=${RADARR_API_KEY}      # Radarr API Key       (Required)                
-      - PLATFORM=radarr               # "radarr", "sonarr".. (Optional) default: radarr
-      - TIME_THRESHOLD=2h             # 1d, 6h, 30m, etc..   (Optional) default: 2h    
-      - SIZE_THRESHOLD=25GB           # 1TB, 1GB, 1MB, etc.. (Optional) default: 25GB  
-      - CHECK_INTERVAL=10m            # 1d, 6h, 30m, etc..   (Optional) default: 10m   
-      - STRIKE_THRESHOLD=3            # Positive number      (Optional) default: 3     
-      - AGGRESSIVE_STRIKES=true      # Boolean              (Optional) default: false 
-    depends_on:
-      gluetun:
-        condition: service_healthy
-
-  # -- (Optional)
-  swaparr-sonarr: 
-    image: ghcr.io/thijmengthn/swaparr:latest
-    container_name: swaparr-sonarr
-    network_mode: service:gluetun
-    restart: always
-    environment:
-      - BASEURL=http://127.0.0.1:8989 # IP or FQDN           (Required)
-      - APIKEY=${SONARR_API_KEY}       # Sonarr API Key       (Required)                
-      - PLATFORM=sonarr               # "radarr", "sonarr".. (Optional) default: radarr
-      - TIME_THRESHOLD=2h             # 1d, 6h, 30m, etc..   (Optional) default: 2h    
-      - SIZE_THRESHOLD=25GB           # 1TB, 1GB, 1MB, etc.. (Optional) default: 25GB  
-      - CHECK_INTERVAL=10m            # 1d, 6h, 30m, etc..   (Optional) default: 10m   
-      - STRIKE_THRESHOLD=3            # Positive number      (Optional) default: 3     
-      - AGGRESSIVE_STRIKES=true      # Boolean              (Optional) default: false
-    depends_on:
-      gluetun:
-        condition: service_healthy
-
-  swaparr-whisparr:
-    image: ghcr.io/thijmengthn/swaparr:latest
-    container_name: swaparr-whisparr
-    network_mode: service:gluetun
-    restart: always
-    environment:
-      - BASEURL=http://127.0.0.1:6969 # Whisparr listens on port 6969
-      - APIKEY=${WHISPARR_API_KEY}    # You’ll need to add this in your .env
-      - PLATFORM=whisparr             # Platform type
-      - TIME_THRESHOLD=2h             # default: 2h
-      - SIZE_THRESHOLD=25GB           # default: 25GB
-      - CHECK_INTERVAL=10m            # default: 10m
-      - STRIKE_THRESHOLD=3            # default: 3
-      - AGGRESSIVE_STRIKES=true       # default: false
-    depends_on:
-      gluetun:
-        condition: service_healthy
-  plex:
-    image: plexinc/pms-docker
-    container_name: plex
-    environment:
-      - TZ=Europe/Stockholm
-      - VERSION=docker
-      - HOSTNAME=PlexServer
-      # - PLEX_CLAIM=claim-xxxx   # optional
-      - PLEX_UID=1000
-      - PLEX_GID=1000
-    volumes:
-      - /docker/appdata/plex:/config
-      - /volume1/data/media:/data/media
-    network_mode: host         # required for discovery/remote access
-    privileged: true           # fixes occasional libusb issues
-    restart: unless-stopped
-    depends_on:
-      gluetun:
-        condition: service_healthy
-
-  # ombi:
-  #   image: lscr.io/linuxserver/ombi:latest
-  #   container_name: ombi
-  #   network_mode: service:gluetun
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Europe/Stockholm
-  #   volumes:
-  #     - /docker/appdata/ombi:/config
-  #   restart: unless-stopped
-
-  heimdall:
-    image: lscr.io/linuxserver/heimdall:latest
-    container_name: heimdall
-    network_mode: service:gluetun
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
-    volumes:
-      - /docker/appdata/heimdall:/config
-    restart: unless-stopped
-    depends_on:
-      gluetun:
-        condition: service_healthy
-  cross-seed:
-    image: ghcr.io/cross-seed/cross-seed:latest
-    container_name: cross-seed
-    network_mode: service:gluetun
-    depends_on:
-      - prowlarr
-      - qbittorrent
-      - gluetun
-    volumes:
-      - ./cross-seed:/config
-      - /volume1/data/torrents:/downloads   # match qB save path
-    command: ["daemon"]
-    restart: unless-stopped
-    environment:
-      - PROWLARR_URL=http://127.0.0.1:9696
-      - PROWLARR_API_KEY=${PROWLARR_API_KEY}
-      - QB_HOST=127.0.0.1:8080
-      - QB_USER=${QB_USER}
-      - QB_PASS=${QB_PASS}
-      - TZ=Europe/Stockholm
-    user: "1000:1000"               # <-- run as PUID 1000 / PGID 1000
+      - /volume1/data:/data                                                                                                                                                                                                                                                                 
+      - ./rclone:/config   # host-managed, writable                                                                                                                                                                                                                                         
+    entrypoint: /bin/sh                                                                                                                                                                                                                                                                     
+    command:                                                                                                                                                                                                                                                                                
+      - -c                                                                                                                                                                                                                                                                                  
+      - |                                                                                                                                                                                                                                                                                   
+        while :; do                                                                                                                                                                                                                                                                         
+          rclone sync "seedbox:/home/seedit4me/torrents/qbittorrent" "/data/seedbox-sync/qbittorrent" \                                                                                                                                                                                     
+            --transfers=4 --checkers=8 --fast-list \                                                                                                                                                                                                                                        
+            --exclude="**/*.!qB" --exclude="**/.unwanted/**" --min-age 5m --max-age 24h \                                                                                                                                                                                                   
+            --copy-links --create-empty-src-dirs \                                                                                                                                                                                                                                          
+            --use-json-log --log-level=INFO --stats=30s;                                                                                                                                                                                                                                    
+          sleep 300;                                                                                                                                                                                                                                                                        
+        done                                                                                                                                                                                                                                                                                
+  # namer:                                                                                                                                                                                                                                                                                  
+  #   container_name: namer                                                                                                                                                                                                                                                                 
+  #   image: ghcr.io/theporndatabase/namer:latest                                                                                                                                                                                                                                           
+  #   network_mode: service:gluetun                                                                                                                                                                                                                                                         
+  #   environment:                                                                                                                                                                                                                                                                          
+  #     - PUID=1001                                                                                                                                                                                                                                                                         
+  #     - PGID=1000                                                                                                                                                                                                                                                                         
+  #     - TZ=Europe/Stockholm                                                                                                                                                                                                                                                               
+  #     - NAMER_CONFIG=/config/namer.cfg                                                                                                                                                                                                                                                    
+  #   volumes:                                                                                                                                                                                                                                                                              
+  #     - ./namer:/config # <- this will store the namer.cfg file copied by you from the git repo ( namer/namer.cfg.default )                                                                                                                                                               
+  #     - /volume1/data/seedbox-sync/qbittorrent/AnalVids August 2025 HD WEB-DL - Part 1 of 2:/data # <- this will have the four folders namer needs to work, referenced in the namer.cfg file you create.                                                                                  
+  #   healthcheck: # <- if on a qnap nas, the default health check will not work for you, domain name is the container_name                                                                                                                                                                 
+  #     test: [ "CMD-SHELL", "curl -f http://namer:6980/api/healthcheck || exit 1" ]                                                                                                                                                                                                        
+  #     interval: 1m                                                                                                                                                                                                                                                                        
+  #     timeout: 30s                                                                                                                                                                                                                                                                        
+  #     # retries: 3                                                                                                                                                                                                                                                                        
+  #     # start_period: 40s                                                                                                                                                                                                                                                                 
+  #   restart: always                                                                                                                                                                                                                                                                       
