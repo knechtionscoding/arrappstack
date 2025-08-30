@@ -1,0 +1,78 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":semanticCommitScope(deps)",
+    ":timezone(Europe/Stockholm)",
+    ":disableRateLimiting",
+    "docker:pinDigests"
+  ],
+
+  "dependencyDashboard": true,
+  "labels": ["renovate", "deps"],
+  "rangeStrategy": "bump",
+  "prHourlyLimit": 4,
+  "rebaseWhen": "conflicted",
+
+  // Defaults for Docker/Compose
+  "packageRules": [
+    // Pin digests & split minor/patch into separate PRs (clearer diffs)
+    {
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "separateMinorPatch": true,
+      "pinDigests": true
+    },
+
+    // SAFE: auto-merge digest updates for everything
+    {
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "matchUpdateTypes": ["digest"],
+      "automerge": true,
+      "automergeType": "branch"
+    },
+
+    // SAFE: auto-merge patch updates for common app images
+    {
+      "groupName": "arr-suite (patch)",
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": [
+        "^lscr\\.io/linuxserver/sonarr",
+        "^lscr\\.io/linuxserver/radarr",
+        "^ghcr\\.io/thespad/whisparr",
+        "^lscr\\.io/linuxserver/prowlarr",
+        "^ghcr\\.io/flaresolverr/flaresolverr",
+        "^ghcr\\.io/cross-seed/cross-seed",
+        "^ghcr\\.io/thijmengthn/swaparr",
+        "^rclone/rclone",
+        "^lscr\\.io/linuxserver/heimdall",
+        "^golift/unpackerr",
+        "^lscr\\.io/linuxserver/sabnzbd",
+        "^lscr\\.io/linuxserver/nzbget"
+      ],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "branch"
+    },
+
+    // HOLD: core infra you likely want to review manually (VPN/client/media server)
+    {
+      "groupName": "core stack (manual review)",
+      "matchPackagePatterns": [
+        "^qmcgaw/gluetun",
+        "^lscr\\.io/linuxserver/qbittorrent",
+        "^plexinc/pms-docker"
+      ],
+      "automerge": false
+    },
+
+    // Batch minors/majors weekly during a quiet window
+    {
+      "matchUpdateTypes": ["minor", "major"],
+      "schedule": ["after 02:00 and before 06:00 on Saturday"],
+      "automerge": false
+    }
+  ]
+}
