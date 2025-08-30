@@ -1,0 +1,65 @@
+sonarr:
+  hosts:
+    main:
+      base_url: http://sonarr:8989
+      api_key: ${SONARR_API_KEY}
+  settings:
+    download_clients:
+      definitions:
+        qb:
+          type: "qbittorrent"
+          enable: true
+          host: "qbittorrent"
+          port: 8080
+          username: ${QB_USER}
+          password: ${QB_PASS}
+          category: "tv"
+      remote_path_mappings:
+        definitions:
+          - host: "qbittorrent"
+            remote_path: "/data/complete/tv"
+            local_path: "/data/complete/tv"
+
+radarr:
+  hosts:
+    main:
+      base_url: http://radarr:7878
+      api_key: ${RADARR_API_KEY}
+  settings:
+    download_clients:
+      definitions:
+        qb:
+          type: "qbittorrent"
+          enable: true
+          host: "qbittorrent"
+          port: 8080
+          username: ${QB_USER}
+          password: ${QB_PASS}
+          category: "movies"
+      remote_path_mappings:
+        definitions:
+          - host: "qbittorrent"
+            remote_path: "/data/complete/movies"
+            local_path: "/data/complete/movies"
+whisparr:
+  hosts:
+    main:
+      base_url: http://whisparr:6969
+      api_key: ${WHISPARR_API_KEY}
+  settings:
+    download_clients:
+      definitions:
+        seedit4me:
+          type: "qbittorrent"
+          enable: true
+          host: "137.ftl11.seedit4.me"
+          port: 443
+          protocol: "https"
+          username: ${QB_USER}
+          password: ${QB_PASS}
+          category: "tv"
+      remote_path_mappings:
+        definitions:
+          - host: "qbittorrent"
+            remote_path: "/home/seedit4me/torrents/qbittorrent/tv-whisparr/"
+            local_path: "/data/complete/tv"

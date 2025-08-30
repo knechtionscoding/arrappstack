@@ -2,7 +2,7 @@
 const enc = encodeURIComponent;
 const PROWLARR_URL = process.env.PROWLARR_URL || "http://127.0.0.1:9696";
 const PROWLARR_API_KEY = process.env.PROWLARR_API_KEY;
-const QB_HOST = process.env.QB_HOST || "127.0.0.1:8080";
+const QB_HOST = process.env.QB_HOST || "137.ftl11.seedit4.me:443/qbittorrent";
 const QB_USER = process.env.QB_USER || "";
 const QB_PASS = process.env.QB_PASS || "";
 
@@ -15,7 +15,7 @@ module.exports = {
 
   // client(s)
   torrentClients: [
-    `qbittorrent:http://${enc(QB_USER)}:${enc(QB_PASS)}@${QB_HOST}`
+    `qbittorrent:https://${enc(QB_USER)}:${enc(QB_PASS)}@${QB_HOST}`
   ],
 
   // also allow file-based matching (optional but helpful)
