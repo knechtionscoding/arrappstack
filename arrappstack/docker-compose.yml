@@ -38,7 +38,7 @@ services:
     restart: always
 
   flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest@sha256:ab535d1fef5d7f1654c2756949798442ae4bbecee99d4338128aa137fd8eca0e
     container_name: flaresolverr
     network_mode: service:gluetun
     shm_size: "2gb"
@@ -50,7 +50,7 @@ services:
         condition: service_healthy
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
+    image: lscr.io/linuxserver/prowlarr:latest@sha256:4f2a6d597845b2f3e19284b1d982b3e0b4bd7c22472c2979c956aa198b83f472
     container_name: prowlarr
     network_mode: service:gluetun
     environment:
@@ -65,7 +65,7 @@ services:
         condition: service_healthy
 
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: lscr.io/linuxserver/sonarr:latest@sha256:e00e87e0e7c24fdc992093756f120a6ab292790b6a637ff3641bf813091cd726
     container_name: sonarr
     network_mode: service:gluetun
     environment:
@@ -81,7 +81,7 @@ services:
         condition: service_healthy
 
   whisparr:
-    image: ghcr.io/thespad/whisparr:latest
+    image: ghcr.io/thespad/whisparr:latest@sha256:d2641a4934746095bad9df9d28c746795bafb14eff8fc3555b7e00c73607e378
     container_name: whisparr
     network_mode: service:gluetun
     environment:
@@ -97,7 +97,7 @@ services:
         condition: service_healthy
 
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: lscr.io/linuxserver/radarr:latest@sha256:7eb64f5af8bbe48e79bc55c0c37ca8db89b2f073a9ff0094f603916ae1df9de8
     container_name: radarr
     network_mode: service:gluetun
     environment:
@@ -129,7 +129,7 @@ services:
         condition: service_healthy
 
   swaparr-radarr:
-    image: ghcr.io/thijmengthn/swaparr:latest
+    image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
     container_name: swaparr-radarr
     network_mode: service:gluetun
     restart: always
@@ -147,7 +147,7 @@ services:
         condition: service_healthy
 
   swaparr-sonarr:
-    image: ghcr.io/thijmengthn/swaparr:latest
+    image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
     container_name: swaparr-sonarr
     network_mode: service:gluetun
     restart: always
@@ -165,7 +165,7 @@ services:
         condition: service_healthy
 
   swaparr-whisparr:
-    image: ghcr.io/thijmengthn/swaparr:latest
+    image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
     container_name: swaparr-whisparr
     network_mode: service:gluetun
     restart: always
@@ -203,7 +203,7 @@ services:
         condition: service_healthy
 
   heimdall:
-    image: lscr.io/linuxserver/heimdall:latest
+    image: lscr.io/linuxserver/heimdall:latest@sha256:1da69e20c9379ee1dc464792876bb83b62d97cdaa63d25cfdbab7138f1109917
     container_name: heimdall
     network_mode: service:gluetun
     environment:
@@ -218,7 +218,7 @@ services:
         condition: service_healthy
 
   rclone-seedbox-pull:
-    image: rclone/rclone:latest
+    image: rclone/rclone:latest@sha256:fd635aecd9667ee3c3bf920d14118090d4f2a83a080c1fa77e0bafbd4587ca87
     container_name: rclone-seedbox-pull
     user: "1000:1000"
     restart: unless-stopped
@@ -242,7 +242,7 @@ services:
           sleep 300;
         done
   overseerr:
-    image: lscr.io/linuxserver/overseerr:latest
+    image: lscr.io/linuxserver/overseerr:latest@sha256:f0bb47460bfbcf7c31dad8b62e2546fb336b4b5209a8404a23e77100da0f25f7
     container_name: overseerr
     network_mode: service:gluetun
     environment:
