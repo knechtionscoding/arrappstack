@@ -16,24 +16,20 @@
   "prHourlyLimit": 4,
   "rebaseWhen": "conflicted",
 
-  // Defaults for Docker/Compose
   "packageRules": [
-    // Pin digests & split minor/patch into separate PRs (clearer diffs)
     {
       "matchManagers": ["docker-compose", "dockerfile"],
       "separateMinorPatch": true,
       "pinDigests": true
     },
 
-    // SAFE: auto-merge digest updates for everything
-    {
+   {
       "matchManagers": ["docker-compose", "dockerfile"],
       "matchUpdateTypes": ["digest"],
       "automerge": true,
       "automergeType": "branch"
     },
 
-    // SAFE: auto-merge patch updates for common app images
     {
       "groupName": "arr-suite (patch)",
       "matchManagers": ["docker-compose", "dockerfile"],
@@ -57,7 +53,6 @@
       "automergeType": "branch"
     },
 
-    // HOLD: core infra you likely want to review manually (VPN/client/media server)
     {
       "groupName": "core stack (manual review)",
       "matchPackagePatterns": [
@@ -68,7 +63,6 @@
       "automerge": false
     },
 
-    // Batch minors/majors weekly during a quiet window
     {
       "matchUpdateTypes": ["minor", "major"],
       "schedule": ["after 02:00 and before 06:00 on Saturday"],
