@@ -26,6 +26,7 @@ services:
       - 3579:3579     # Ombi (if enabled)
       - 8083:80       # Heimdall (HTTP)
       - 8443:443      # Heimdall (HTTPS)
+      - 5055:5055     # Overseerr
     environment:
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=wireguard
@@ -215,15 +216,6 @@ services:
     depends_on:
       gluetun:
         condition: service_healthy
-buildarr:
-  image: ghcr.io/buildarr/buildarr:latest
-  container_name: buildarr
-  volumes:
-    - ./buildarr:/config:ro
-  environment:
-    - TZ=Europe/Stockholm
-  command: ["run", "/config/buildarr.yaml"]
-  restart: "no"
 
   rclone-seedbox-pull:
     image: rclone/rclone:latest
@@ -249,17 +241,17 @@ buildarr:
             --use-json-log --log-level=INFO --stats=30s;
           sleep 300;
         done
-  # ombi:                                                                                                                                                                                                                                                                                   
-  #   image: lscr.io/linuxserver/ombi:latest                                                                                                                                                                                                                                                
-  #   container_name: ombi                                                                                                                                                                                                                                                                  
-  #   network_mode: service:gluetun                                                                                                                                                                                                                                                         
-  #   environment:                                                                                                                                                                                                                                                                          
-  #     - PUID=1000                                                                                                                                                                                                                                                                         
-  #     - PGID=1000                                                                                                                                                                                                                                                                         
-  #     - TZ=Europe/Stockholm                                                                                                                                                                                                                                                               
-  #   volumes:                                                                                                                                                                                                                                                                              
-  #     - /docker/appdata/ombi:/config                                                                                                                                                                                                                                                      
-  #   restart: unless-stopped  
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    network_mode: service:gluetun
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - overseerr_config:/config
+    restart: unless-stopped
 volumes:
   prowlarr_config:
   sonarr_config:
@@ -268,3 +260,4 @@ volumes:
   qbittorrent_config:
   heimdall_config:
   plex_config:
+  overseerr_config:
