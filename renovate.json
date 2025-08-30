@@ -9,63 +9,80 @@
     ":disableRateLimiting",
     "docker:pinDigests"
   ],
-
   "dependencyDashboard": true,
-  "labels": ["renovate", "deps"],
+  "labels": [
+    "renovate",
+    "deps"
+  ],
   "rangeStrategy": "bump",
   "prHourlyLimit": 4,
   "rebaseWhen": "conflicted",
-
   "packageRules": [
     {
-      "matchManagers": ["docker-compose", "dockerfile"],
+      "matchManagers": [
+        "docker-compose",
+        "dockerfile"
+      ],
       "separateMinorPatch": true,
       "pinDigests": true
     },
-
-   {
-      "matchManagers": ["docker-compose", "dockerfile"],
-      "matchUpdateTypes": ["digest"],
+    {
+      "matchManagers": [
+        "docker-compose",
+        "dockerfile"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
       "automerge": true,
       "automergeType": "branch"
     },
-
     {
       "groupName": "arr-suite (patch)",
-      "matchManagers": ["docker-compose", "dockerfile"],
-      "matchDatasources": ["docker"],
-      "matchPackagePatterns": [
-        "^lscr\\.io/linuxserver/sonarr",
-        "^lscr\\.io/linuxserver/radarr",
-        "^ghcr\\.io/thespad/whisparr",
-        "^lscr\\.io/linuxserver/prowlarr",
-        "^ghcr\\.io/flaresolverr/flaresolverr",
-        "^ghcr\\.io/cross-seed/cross-seed",
-        "^ghcr\\.io/thijmengthn/swaparr",
-        "^rclone/rclone",
-        "^lscr\\.io/linuxserver/heimdall",
-        "^golift/unpackerr",
-        "^lscr\\.io/linuxserver/sabnzbd",
-        "^lscr\\.io/linuxserver/nzbget"
+      "matchManagers": [
+        "docker-compose",
+        "dockerfile"
       ],
-      "matchUpdateTypes": ["patch"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
       "automerge": true,
-      "automergeType": "branch"
+      "automergeType": "branch",
+      "matchPackageNames": [
+        "/^lscr\\.io/linuxserver/sonarr/",
+        "/^lscr\\.io/linuxserver/radarr/",
+        "/^ghcr\\.io/thespad/whisparr/",
+        "/^lscr\\.io/linuxserver/prowlarr/",
+        "/^ghcr\\.io/flaresolverr/flaresolverr/",
+        "/^ghcr\\.io/cross-seed/cross-seed/",
+        "/^ghcr\\.io/thijmengthn/swaparr/",
+        "/^rclone/rclone/",
+        "/^lscr\\.io/linuxserver/heimdall/",
+        "/^golift/unpackerr/",
+        "/^lscr\\.io/linuxserver/sabnzbd/",
+        "/^lscr\\.io/linuxserver/nzbget/"
+      ]
     },
-
     {
       "groupName": "core stack (manual review)",
-      "matchPackagePatterns": [
-        "^qmcgaw/gluetun",
-        "^lscr\\.io/linuxserver/qbittorrent",
-        "^plexinc/pms-docker"
-      ],
-      "automerge": false
+      "automerge": false,
+      "matchPackageNames": [
+        "/^qmcgaw/gluetun/",
+        "/^lscr\\.io/linuxserver/qbittorrent/",
+        "/^plexinc/pms-docker/"
+      ]
     },
-
     {
-      "matchUpdateTypes": ["minor", "major"],
-      "schedule": ["after 02:00 and before 06:00 on Saturday"],
+      "matchUpdateTypes": [
+        "minor",
+        "major"
+      ],
+      "schedule": [
+        "after 02:00 and before 06:00 on Saturday"
+      ],
       "automerge": false
     }
   ]
