@@ -27,6 +27,7 @@ services:
       - 8083:80       # Heimdall (HTTP)
       - 8443:443      # Heimdall (HTTPS)
       - 5055:5055     # Overseerr
+      - 6767:6767     # Bazarr
     environment:
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=wireguard
@@ -137,10 +138,10 @@ services:
       - BASEURL=http://127.0.0.1:7878
       - APIKEY=${RADARR_API_KEY}
       - PLATFORM=radarr
-      - TIME_THRESHOLD=2h
-      - SIZE_THRESHOLD=25GB
-      - CHECK_INTERVAL=10m
-      - STRIKE_THRESHOLD=3
+      - MAX_DOWNLOAD_TIME=2h
+      - IGNORE_ABOVE_SIZE=25GB
+      - SCAN_INTERVAL=10m
+      - MAX_STRIKES=3
       - AGGRESSIVE_STRIKES=true
     depends_on:
       gluetun:
@@ -155,10 +156,10 @@ services:
       - BASEURL=http://127.0.0.1:8989
       - APIKEY=${SONARR_API_KEY}
       - PLATFORM=sonarr
-      - TIME_THRESHOLD=2h
-      - SIZE_THRESHOLD=25GB
-      - CHECK_INTERVAL=10m
-      - STRIKE_THRESHOLD=3
+      - MAX_DOWNLOAD_TIME=2h
+      - IGNORE_ABOVE_SIZE=50GB
+      - SCAN_INTERVAL=10m
+      - MAX_STRIKES=3
       - AGGRESSIVE_STRIKES=true
     depends_on:
       gluetun:
@@ -173,10 +174,10 @@ services:
       - BASEURL=http://127.0.0.1:6969
       - APIKEY=${WHISPARR_API_KEY}
       - PLATFORM=whisparr
-      - TIME_THRESHOLD=2h
-      - SIZE_THRESHOLD=25GB
-      - CHECK_INTERVAL=10m
-      - STRIKE_THRESHOLD=3
+      - MAX_DOWNLOAD_TIME=2h
+      - IGNORE_ABOVE_SIZE=50GB
+      - SCAN_INTERVAL=10m
+      - MAX_STRIKES=3
       - AGGRESSIVE_STRIKES=true
     depends_on:
       gluetun:
@@ -197,6 +198,22 @@ services:
       - /volume1/data/media:/data/media
     network_mode: host          # discovery/remote access
     privileged: true            # occasional libusb issues
+    restart: unless-stopped
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    network_mode: service:gluetun
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - bazarr_config:/config
+      - /volume1/data/media:/data/media   # where your Movies/TV live (same as Plex)
     restart: unless-stopped
     depends_on:
       gluetun:
@@ -256,6 +273,23 @@ services:
     volumes:
       - overseerr_config:/config
     restart: unless-stopped
+
+  # terraform:
+  #   image: hashicorp/terraform:1.10
+  #   container_name: terraform-arr
+  #   working_dir: /tf
+  #   volumes:
+  #     - ./terraform:/tf
+  #   environment:
+  #     - TF_IN_AUTOMATION=1
+  #     # pass secrets as env so they don't live in git
+  #     - TF_VAR_sonarr_api_key=${SONARR_API_KEY}
+  #     - TF_VAR_radarr_api_key=${RADARR_API_KEY}
+  #     - TF_VAR_whisparr_api_key=${WHISPARR_API_KEY}
+  #     - TF_VAR_prowlarr_api_key=${PROWLARR_API_KEY}
+  #     - TF_VAR_qb_password=${QB_PASS}
+  #   entrypoint: ["/bin/sh","-lc","terraform init && terraform apply -auto-approve"]
+  #   restart: "no"
 volumes:
   prowlarr_config:
   sonarr_config:
@@ -265,3 +299,4 @@ volumes:
   heimdall_config:
   plex_config:
   overseerr_config:
+  bazarr_config:
