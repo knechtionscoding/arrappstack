@@ -225,10 +225,14 @@ services:
     network_mode: service:gluetun
     environment:
       - TZ=Europe/Stockholm
-      - RCLONE_CONFIG=/config/rclone.conf
+      - RCLONE_CONFIG=/dev/null
+      - RCLONE_CONFIG_SEEDBOX_TYPE=sftp
+      - RCLONE_CONFIG_SEEDBOX_HOST=137.ftl11.seedit4.me
+      - RCLONE_CONFIG_SEEDBOX_PORT=2113
+      - RCLONE_CONFIG_SEEDBOX_USER=seedit4me
+      - RCLONE_CONFIG_SEEDBOX_PASS=${RCLONE_SEEDBOX_OBSCURED_PASS}  # set in .env (output of `rclone obscure ...`)
     volumes:
       - /volume1/data:/data
-      - ./rclone:/config  # keep host-managed for easy editing
     entrypoint: /bin/sh
     command:
       - -c
@@ -236,7 +240,7 @@ services:
         while :; do
           rclone copy "seedbox:/home/seedit4me/torrents/qbittorrent" "/data/seedbox-sync/qbittorrent" \
             --transfers=4 --checkers=8 --fast-list \
-            --exclude="**/*.!qB" --exclude="**/.unwanted/**" --min-age 5m --max-age 24h \
+            --exclude="**/*.!qB" --exclude="**/.unwanted/**" --min-age 5m --max-age 180h \
             --copy-links --create-empty-src-dirs \
             --use-json-log --log-level=INFO --stats=30s;
           sleep 300;
