@@ -204,7 +204,7 @@ services:
         condition: service_healthy
 
   bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:latest@sha256:fed1656839bf8d916d6e7d0586c465ee7594cd503e6165c202ec782f25ea3029
     container_name: bazarr
     network_mode: service:gluetun
     environment:
