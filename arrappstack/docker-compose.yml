@@ -6,7 +6,7 @@
 # sudo chmod 600 /dev/net/tun                                                                                                                                                                                                                                                                                            
 services:
   gluetun:
-    image: qmcgaw/gluetun@sha256:29be3ff9a71ecc5ddb6716b5a4859b1af5712a6debe90ca69b100ef784845bbc
+    image: qmcgaw/gluetun@sha256:156ed7abe05c2e8cbe505e699909e2fe1779c71d977df5936484b692c61d3717
     container_name: gluetun
     cap_add:
       - NET_ADMIN
@@ -114,7 +114,7 @@ services:
         condition: service_healthy
 
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest@sha256:d464a92d5656f1fa66baafe610a06a6cafd4bdf900a245e6f20b220f281b456d
+    image: lscr.io/linuxserver/qbittorrent:latest@sha256:4d651284a42e8ae33f23d41a0ccfdfff8ab8ebee28099fd030d9e858dbbbdf38
     container_name: qbittorrent
     network_mode: service:gluetun
     environment:
