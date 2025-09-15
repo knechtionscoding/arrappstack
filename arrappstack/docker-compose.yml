@@ -220,7 +220,7 @@ services:
         condition: service_healthy
 
   heimdall:
-    image: lscr.io/linuxserver/heimdall:latest@sha256:1da69e20c9379ee1dc464792876bb83b62d97cdaa63d25cfdbab7138f1109917
+    image: lscr.io/linuxserver/heimdall:latest@sha256:30c32fb4ebe54282b6e60cb0232f57d5fcda60d87a9b7e9a4d1ef71ad636817d
     container_name: heimdall
     network_mode: service:gluetun
     environment:
