@@ -129,59 +129,59 @@ services:
       gluetun:
         condition: service_healthy
 
-  swaparr-radarr:
-    image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
-    container_name: swaparr-radarr
-    network_mode: service:gluetun
-    restart: always
-    environment:
-      - BASEURL=http://127.0.0.1:7878
-      - APIKEY=${RADARR_API_KEY}
-      - PLATFORM=radarr
-      - MAX_DOWNLOAD_TIME=2h
-      - IGNORE_ABOVE_SIZE=25GB
-      - SCAN_INTERVAL=10m
-      - MAX_STRIKES=3
-      - AGGRESSIVE_STRIKES=true
-    depends_on:
-      gluetun:
-        condition: service_healthy
+  # swaparr-radarr:
+  #   image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
+  #   container_name: swaparr-radarr
+  #   network_mode: service:gluetun
+  #   restart: always
+  #   environment:
+  #     - BASEURL=http://127.0.0.1:7878
+  #     - APIKEY=${RADARR_API_KEY}
+  #     - PLATFORM=radarr
+  #     - MAX_DOWNLOAD_TIME=2h
+  #     - IGNORE_ABOVE_SIZE=25GB
+  #     - SCAN_INTERVAL=10m
+  #     - MAX_STRIKES=3
+  #     - AGGRESSIVE_STRIKES=true
+  #   depends_on:
+  #     gluetun:
+  #       condition: service_healthy
 
-  swaparr-sonarr:
-    image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
-    container_name: swaparr-sonarr
-    network_mode: service:gluetun
-    restart: always
-    environment:
-      - BASEURL=http://127.0.0.1:8989
-      - APIKEY=${SONARR_API_KEY}
-      - PLATFORM=sonarr
-      - MAX_DOWNLOAD_TIME=2h
-      - IGNORE_ABOVE_SIZE=50GB
-      - SCAN_INTERVAL=10m
-      - MAX_STRIKES=3
-      - AGGRESSIVE_STRIKES=true
-    depends_on:
-      gluetun:
-        condition: service_healthy
+  # swaparr-sonarr:
+  #   image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
+  #   container_name: swaparr-sonarr
+  #   network_mode: service:gluetun
+  #   restart: always
+  #   environment:
+  #     - BASEURL=http://127.0.0.1:8989
+  #     - APIKEY=${SONARR_API_KEY}
+  #     - PLATFORM=sonarr
+  #     - MAX_DOWNLOAD_TIME=2h
+  #     - IGNORE_ABOVE_SIZE=50GB
+  #     - SCAN_INTERVAL=10m
+  #     - MAX_STRIKES=3
+  #     - AGGRESSIVE_STRIKES=true
+  #   depends_on:
+  #     gluetun:
+  #       condition: service_healthy
 
-  swaparr-whisparr:
-    image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
-    container_name: swaparr-whisparr
-    network_mode: service:gluetun
-    restart: always
-    environment:
-      - BASEURL=http://127.0.0.1:6969
-      - APIKEY=${WHISPARR_API_KEY}
-      - PLATFORM=whisparr
-      - MAX_DOWNLOAD_TIME=2h
-      - IGNORE_ABOVE_SIZE=50GB
-      - SCAN_INTERVAL=10m
-      - MAX_STRIKES=3
-      - AGGRESSIVE_STRIKES=true
-    depends_on:
-      gluetun:
-        condition: service_healthy
+  # swaparr-whisparr:
+  #   image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
+  #   container_name: swaparr-whisparr
+  #   network_mode: service:gluetun
+  #   restart: always
+  #   environment:
+  #     - BASEURL=http://127.0.0.1:6969
+  #     - APIKEY=${WHISPARR_API_KEY}
+  #     - PLATFORM=whisparr
+  #     - MAX_DOWNLOAD_TIME=2h
+  #     - IGNORE_ABOVE_SIZE=50GB
+  #     - SCAN_INTERVAL=10m
+  #     - MAX_STRIKES=3
+  #     - AGGRESSIVE_STRIKES=true
+  #   depends_on:
+  #     gluetun:
+  #       condition: service_healthy
 
   plex:
     image: plexinc/pms-docker@sha256:4e704a2172129d8a6bc5b05ea201945b329bb6512f48a4e92ed4a4a787c35462
@@ -273,6 +273,44 @@ services:
     volumes:
       - overseerr_config:/config
     restart: unless-stopped
+
+  unpackerr:
+    image: golift/unpackerr:latest
+    container_name: unpackerr
+    network_mode: service:gluetun               # reach *Arr at 127.0.0.1
+    user: "1000:1000"                           # match your file ownership
+    environment:
+      - TZ=Europe/Stockholm
+      # --- Link to your *Arr apps (same as you already run) ---
+      - UN_SONARR_0_URL=http://127.0.0.1:8989
+      - UN_SONARR_0_API_KEY=${SONARR_API_KEY}
+      - UN_RADARR_0_URL=http://127.0.0.1:7878
+      - UN_RADARR_0_API_KEY=${RADARR_API_KEY}
+      - UN_WHISPARR_0_URL=http://127.0.0.1:6969
+      - UN_WHISPARR_0_API_KEY=${WHISPARR_API_KEY}
+      - UN_SONARR_0_DELETE_ORIG=false
+      - UN_RADARR_0_DELETE_ORIG=false
+      - UN_WHISPARR_0_DELETE_ORIG=false
+      # Watch & extract (use durations, not booleans)
+      - UN_FOLDER_0_PATH=/data/torrents
+      - UN_FOLDER_0_EXTRACT_PATH=/data/torrents
+      - UN_FOLDER_0_DELETE_AFTER=96h
+      - UN_FOLDER_1_PATH=/data/seedbox-sync/qbittorrent
+      - UN_FOLDER_1_EXTRACT_PATH=/data/seedbox-sync/qbittorrent
+      - UN_FOLDER_1_DELETE_AFTER=96h
+      - UN_LOG_LEVEL=INFO
+    volumes:
+      - /volume1/data:/data                    # gives access to both /data/torrents and /data/seedbox-sync
+    restart: unless-stopped
+    depends_on:
+      gluetun:
+        condition: service_healthy
+      sonarr:
+        condition: service_started
+      radarr:
+        condition: service_started
+      whisparr:
+        condition: service_started
 
   # terraform:
   #   image: hashicorp/terraform:1.10
