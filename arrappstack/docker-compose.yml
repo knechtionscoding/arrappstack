@@ -1,59 +1,64 @@
----                     
-# To get gluetun setup                                                                                                                                                                                                                                                                    
-# sudo modprobe tun
-# sudo mkdir -p /dev/net
-# sudo mknod /dev/net/tun c 10 200
-# sudo chmod 600 /dev/net/tun                                                                                                                                                                                                                                                                                            
+version: "3.8"
+
 services:
-  gluetun:
-    image: qmcgaw/gluetun@sha256:29be3ff9a71ecc5ddb6716b5a4859b1af5712a6debe90ca69b100ef784845bbc
-    container_name: gluetun
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=0
-    ports:
-      - 8989:8989     # Sonarr
-      - 7878:7878     # Radarr
-      - 8080:8080     # qBittorrent
-      - 8388:8388/tcp # Shadowsocks
-      - 8388:8388/udp # Shadowsocks
-      - 8191:8191     # FlareSolverr
-      - 9696:9696     # Prowlarr
-      - 6969:6969     # Whisparr
-      - 3579:3579     # Ombi (if enabled)
-      - 8083:80       # Heimdall (HTTP)
-      - 8443:443      # Heimdall (HTTPS)
-      - 5055:5055     # Overseerr
-      - 6767:6767     # Bazarr
-    environment:
-      - VPN_SERVICE_PROVIDER=mullvad
-      - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_ADDRESSES=10.67.106.235/32
-      - SERVER_COUNTRIES=Sweden
-      - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
-      - WIREGUARD_ALLOWED_IPS=0.0.0.0/0
-    restart: always
+  # gluetun:
+  #   image: qmcgaw/gluetun@sha256:29be3ff9a71ecc5ddb6716b5a4859b1af5712a6debe90ca69b100ef784845bbc
+  #   container_name: gluetun
+  #   cap_add: [NET_ADMIN]
+  #   devices:
+  #     - /dev/net/tun:/dev/net/tun
+  #   sysctls:
+  #     - net.ipv6.conf.all.disable_ipv6=0
+  #   # Only expose ports that belong to apps that MUST stay in the VPN namespace (qBittorrent)
+  #   ports:
+  #     - 8080:8080     # qBittorrent UI
+  #     # Keep Shadowsocks only if you actually use it:
+  #     # - 8388:8388/tcp
+  #     # - 8388:8388/udp
+  #   environment:
+  #     - VPN_SERVICE_PROVIDER=mullvad
+  #     - VPN_TYPE=wireguard
+  #     - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+  #     - WIREGUARD_ADDRESSES=10.67.106.235/32
+  #     - SERVER_COUNTRIES=Sweden
+  #     - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
+  #     - WIREGUARD_ALLOWED_IPS=0.0.0.0/0
+  #   restart: always
+  #   networks:
+  #     - arrnet
+
+  # qbittorrent:
+  #   image: lscr.io/linuxserver/qbittorrent:latest
+  #   container_name: qbittorrent
+  #   network_mode: service:gluetun         # stays behind VPN
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Stockholm
+  #   volumes:
+  #     - qbittorrent_config:/config
+  #     - /volume1/data/torrents:/downloads
+  #   restart: always
+  #   depends_on:
+  #     gluetun:
+  #       condition: service_healthy
+
+  # --- Everything below is OFF the VPN (normal bridge) ---
 
   flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest@sha256:ab535d1fef5d7f1654c2756949798442ae4bbecee99d4338128aa137fd8eca0e
+    image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
-    network_mode: service:gluetun
     shm_size: "2gb"
     environment:
       - LOG_LEVEL=info
     restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    networks: [arrnet]
+    ports:
+      - 8191:8191
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest@sha256:4f2a6d597845b2f3e19284b1d982b3e0b4bd7c22472c2979c956aa198b83f472
+    image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
-    network_mode: service:gluetun
     environment:
       - PUID=1000
       - PGID=1000
@@ -61,14 +66,13 @@ services:
     volumes:
       - prowlarr_config:/config
     restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    networks: [arrnet]
+    ports:
+      - 9696:9696
 
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest@sha256:e00e87e0e7c24fdc992093756f120a6ab292790b6a637ff3641bf813091cd726
+    image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
-    network_mode: service:gluetun
     environment:
       - PUID=1000
       - PGID=1000
@@ -77,14 +81,13 @@ services:
       - sonarr_config:/config
       - /volume1/data:/data
     restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    networks: [arrnet]
+    ports:
+      - 8989:8989
 
   whisparr:
-    image: ghcr.io/thespad/whisparr:latest@sha256:d2641a4934746095bad9df9d28c746795bafb14eff8fc3555b7e00c73607e378
+    image: ghcr.io/thespad/whisparr:latest
     container_name: whisparr
-    network_mode: service:gluetun
     environment:
       - PUID=1000
       - PGID=1000
@@ -93,14 +96,13 @@ services:
       - whisparr_config:/config
       - /volume1/data:/data
     restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    networks: [arrnet]
+    ports:
+      - 6969:6969
 
   radarr:
-    image: lscr.io/linuxserver/radarr:latest@sha256:7eb64f5af8bbe48e79bc55c0c37ca8db89b2f073a9ff0094f603916ae1df9de8
+    image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
-    network_mode: service:gluetun
     environment:
       - PUID=1000
       - PGID=1000
@@ -109,120 +111,42 @@ services:
       - radarr_config:/config
       - /volume1/data:/data
     restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
-
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest@sha256:d464a92d5656f1fa66baafe610a06a6cafd4bdf900a245e6f20b220f281b456d
-    container_name: qbittorrent
-    network_mode: service:gluetun
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
-    volumes:
-      - qbittorrent_config:/config
-      - /volume1/data/torrents:/downloads
-    restart: always
-    depends_on:
-      gluetun:
-        condition: service_healthy
-
-  # swaparr-radarr:
-  #   image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
-  #   container_name: swaparr-radarr
-  #   network_mode: service:gluetun
-  #   restart: always
-  #   environment:
-  #     - BASEURL=http://127.0.0.1:7878
-  #     - APIKEY=${RADARR_API_KEY}
-  #     - PLATFORM=radarr
-  #     - MAX_DOWNLOAD_TIME=2h
-  #     - IGNORE_ABOVE_SIZE=25GB
-  #     - SCAN_INTERVAL=10m
-  #     - MAX_STRIKES=3
-  #     - AGGRESSIVE_STRIKES=true
-  #   depends_on:
-  #     gluetun:
-  #       condition: service_healthy
-
-  # swaparr-sonarr:
-  #   image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
-  #   container_name: swaparr-sonarr
-  #   network_mode: service:gluetun
-  #   restart: always
-  #   environment:
-  #     - BASEURL=http://127.0.0.1:8989
-  #     - APIKEY=${SONARR_API_KEY}
-  #     - PLATFORM=sonarr
-  #     - MAX_DOWNLOAD_TIME=2h
-  #     - IGNORE_ABOVE_SIZE=50GB
-  #     - SCAN_INTERVAL=10m
-  #     - MAX_STRIKES=3
-  #     - AGGRESSIVE_STRIKES=true
-  #   depends_on:
-  #     gluetun:
-  #       condition: service_healthy
-
-  # swaparr-whisparr:
-  #   image: ghcr.io/thijmengthn/swaparr:latest@sha256:1ebd53ac1919ade81c8185c66830d3467ecda7dfde5a383dc9a91fc21e713ba2
-  #   container_name: swaparr-whisparr
-  #   network_mode: service:gluetun
-  #   restart: always
-  #   environment:
-  #     - BASEURL=http://127.0.0.1:6969
-  #     - APIKEY=${WHISPARR_API_KEY}
-  #     - PLATFORM=whisparr
-  #     - MAX_DOWNLOAD_TIME=2h
-  #     - IGNORE_ABOVE_SIZE=50GB
-  #     - SCAN_INTERVAL=10m
-  #     - MAX_STRIKES=3
-  #     - AGGRESSIVE_STRIKES=true
-  #   depends_on:
-  #     gluetun:
-  #       condition: service_healthy
-
-  plex:
-    image: plexinc/pms-docker@sha256:4e704a2172129d8a6bc5b05ea201945b329bb6512f48a4e92ed4a4a787c35462
-    container_name: plex
-    environment:
-      - TZ=Europe/Stockholm
-      - VERSION=docker
-      - HOSTNAME=PlexServer
-      - PLEX_UID=1000
-      - PLEX_GID=1000
-      # - PLEX_CLAIM=claim-xxxx
-    volumes:
-      - plex_config:/config
-      - /volume1/data/media:/data/media
-    network_mode: host          # discovery/remote access
-    privileged: true            # occasional libusb issues
-    restart: unless-stopped
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    networks: [arrnet]
+    ports:
+      - 7878:7878
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
-    network_mode: service:gluetun
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Stockholm
     volumes:
       - bazarr_config:/config
-      - /volume1/data/media:/data/media   # where your Movies/TV live (same as Plex)
+      - /volume1/data/media:/data/media
     restart: unless-stopped
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    networks: [arrnet]
+    ports:
+      - 6767:6767
+
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - overseerr_config:/config
+    restart: unless-stopped
+    networks: [arrnet]
+    ports:
+      - 5055:5055
 
   heimdall:
-    image: lscr.io/linuxserver/heimdall:latest@sha256:1da69e20c9379ee1dc464792876bb83b62d97cdaa63d25cfdbab7138f1109917
+    image: lscr.io/linuxserver/heimdall:latest
     container_name: heimdall
-    network_mode: service:gluetun
     environment:
       - PUID=1000
       - PGID=1000
@@ -230,16 +154,16 @@ services:
     volumes:
       - heimdall_config:/config
     restart: unless-stopped
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    networks: [arrnet]
+    ports:
+      - 8083:80
+      - 8443:443
 
   rclone-seedbox-pull:
-    image: rclone/rclone:latest@sha256:fd635aecd9667ee3c3bf920d14118090d4f2a83a080c1fa77e0bafbd4587ca87
+    image: rclone/rclone:latest
     container_name: rclone-seedbox-pull
     user: "1000:1000"
     restart: unless-stopped
-    network_mode: service:gluetun
     environment:
       - TZ=Europe/Stockholm
       - RCLONE_CONFIG=/dev/null
@@ -247,7 +171,7 @@ services:
       - RCLONE_CONFIG_SEEDBOX_HOST=137.ftl11.seedit4.me
       - RCLONE_CONFIG_SEEDBOX_PORT=2113
       - RCLONE_CONFIG_SEEDBOX_USER=seedit4me
-      - RCLONE_CONFIG_SEEDBOX_PASS=${RCLONE_SEEDBOX_OBSCURED_PASS}  # set in .env (output of `rclone obscure ...`)
+      - RCLONE_CONFIG_SEEDBOX_PASS=${RCLONE_SEEDBOX_OBSCURED_PASS}
     volumes:
       - /volume1/data:/data
     entrypoint: /bin/sh
@@ -262,36 +186,24 @@ services:
             --use-json-log --log-level=INFO --stats=30s;
           sleep 300;
         done
-  overseerr:
-    image: lscr.io/linuxserver/overseerr:latest@sha256:f0bb47460bfbcf7c31dad8b62e2546fb336b4b5209a8404a23e77100da0f25f7
-    container_name: overseerr
-    network_mode: service:gluetun
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
-    volumes:
-      - overseerr_config:/config
-    restart: unless-stopped
+    networks: [arrnet]
 
   unpackerr:
     image: golift/unpackerr:latest
     container_name: unpackerr
-    network_mode: service:gluetun               # reach *Arr at 127.0.0.1
-    user: "1000:1000"                           # match your file ownership
+    user: "1000:1000"
     environment:
       - TZ=Europe/Stockholm
-      # --- Link to your *Arr apps (same as you already run) ---
-      - UN_SONARR_0_URL=http://127.0.0.1:8989
+      # Update to service names (no more 127.0.0.1)
+      - UN_SONARR_0_URL=http://sonarr:8989
       - UN_SONARR_0_API_KEY=${SONARR_API_KEY}
-      - UN_RADARR_0_URL=http://127.0.0.1:7878
+      - UN_RADARR_0_URL=http://radarr:7878
       - UN_RADARR_0_API_KEY=${RADARR_API_KEY}
-      - UN_WHISPARR_0_URL=http://127.0.0.1:6969
+      - UN_WHISPARR_0_URL=http://whisparr:6969
       - UN_WHISPARR_0_API_KEY=${WHISPARR_API_KEY}
       - UN_SONARR_0_DELETE_ORIG=false
       - UN_RADARR_0_DELETE_ORIG=false
       - UN_WHISPARR_0_DELETE_ORIG=false
-      # Watch & extract (use durations, not booleans)
       - UN_FOLDER_0_PATH=/data/torrents
       - UN_FOLDER_0_EXTRACT_PATH=/data/torrents
       - UN_FOLDER_0_DELETE_AFTER=96h
@@ -300,11 +212,10 @@ services:
       - UN_FOLDER_1_DELETE_AFTER=96h
       - UN_LOG_LEVEL=INFO
     volumes:
-      - /volume1/data:/data                    # gives access to both /data/torrents and /data/seedbox-sync
+      - /volume1/data:/data
     restart: unless-stopped
+    networks: [arrnet]
     depends_on:
-      gluetun:
-        condition: service_healthy
       sonarr:
         condition: service_started
       radarr:
@@ -312,22 +223,22 @@ services:
       whisparr:
         condition: service_started
 
-  # terraform:
-  #   image: hashicorp/terraform:1.10
-  #   container_name: terraform-arr
-  #   working_dir: /tf
-  #   volumes:
-  #     - ./terraform:/tf
-  #   environment:
-  #     - TF_IN_AUTOMATION=1
-  #     # pass secrets as env so they don't live in git
-  #     - TF_VAR_sonarr_api_key=${SONARR_API_KEY}
-  #     - TF_VAR_radarr_api_key=${RADARR_API_KEY}
-  #     - TF_VAR_whisparr_api_key=${WHISPARR_API_KEY}
-  #     - TF_VAR_prowlarr_api_key=${PROWLARR_API_KEY}
-  #     - TF_VAR_qb_password=${QB_PASS}
-  #   entrypoint: ["/bin/sh","-lc","terraform init && terraform apply -auto-approve"]
-  #   restart: "no"
+  plex:
+    image: plexinc/pms-docker@sha256:4e704a2172129d8a6bc5b05ea201945b329bb6512f48a4e92ed4a4a787c35462
+    container_name: plex
+    environment:
+      - TZ=Europe/Stockholm
+      - VERSION=docker
+      - HOSTNAME=PlexServer
+      - PLEX_UID=1000
+      - PLEX_GID=1000
+    volumes:
+      - plex_config:/config
+      - /volume1/data/media:/data/media
+    network_mode: host
+    privileged: true
+    restart: unless-stopped
+
 volumes:
   prowlarr_config:
   sonarr_config:
@@ -338,3 +249,7 @@ volumes:
   plex_config:
   overseerr_config:
   bazarr_config:
+
+networks:
+  arrnet:
+    driver: bridge
