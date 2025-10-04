@@ -46,7 +46,7 @@ services:
   # --- Everything below is OFF the VPN (normal bridge) ---
 
   flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest@sha256:5379a9209c86870558d77c8cdf7efdf300aecf0447617a05dc77e0491d53f34c
     container_name: flaresolverr
     shm_size: "2gb"
     environment:
@@ -57,7 +57,7 @@ services:
       - 8191:8191
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
+    image: lscr.io/linuxserver/prowlarr:latest@sha256:fa81e471a7e46a24b121838563a10d468cf82eecd1587a464c6df4927ecc3248
     container_name: prowlarr
     environment:
       - PUID=1000
@@ -71,7 +71,7 @@ services:
       - 9696:9696
 
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: lscr.io/linuxserver/sonarr:latest@sha256:328d322af2bb8d7211a9c43a26ff5e658ba3e6f47a695e8fb9ff806bfeab0f04
     container_name: sonarr
     environment:
       - PUID=1000
@@ -86,7 +86,7 @@ services:
       - 8989:8989
 
   whisparr:
-    image: ghcr.io/thespad/whisparr:latest
+    image: ghcr.io/thespad/whisparr:latest@sha256:9efe12d790a7f064b5744db613892fc1ada413688c70ad383243ed0c3e5e2d79
     container_name: whisparr
     environment:
       - PUID=1000
@@ -101,7 +101,7 @@ services:
       - 6969:6969
 
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: lscr.io/linuxserver/radarr:latest@sha256:19474a623b278f558c9696a19b84640ad4aff3b2959f08904a77ffbad73ed7bd
     container_name: radarr
     environment:
       - PUID=1000
@@ -116,7 +116,7 @@ services:
       - 7878:7878
 
   bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:latest@sha256:cf7a02a46d37899eeafd1d96b81984168f771f89c554a52a2fd35437fdc16cb6
     container_name: bazarr
     environment:
       - PUID=1000
@@ -131,7 +131,7 @@ services:
       - 6767:6767
 
   overseerr:
-    image: lscr.io/linuxserver/overseerr:latest
+    image: lscr.io/linuxserver/overseerr:latest@sha256:e0761ee4071dcf8f0515d492711f8671c025814dc4976764422185b53ee3778c
     container_name: overseerr
     environment:
       - PUID=1000
@@ -145,7 +145,7 @@ services:
       - 5055:5055
 
   heimdall:
-    image: lscr.io/linuxserver/heimdall:latest
+    image: lscr.io/linuxserver/heimdall:latest@sha256:0694415ee12a42b362c291b0f77dc2b42eb4bc0877bda26253c9c8a6d79dab01
     container_name: heimdall
     environment:
       - PUID=1000
@@ -160,7 +160,7 @@ services:
       - 8443:443
 
   rclone-seedbox-pull:
-    image: rclone/rclone:latest
+    image: rclone/rclone:latest@sha256:d5971950c2b370fb04dd3292541b5bda6d9103143fd7e345aeb435a399388afc
     container_name: rclone-seedbox-pull
     user: "1000:1000"
     restart: unless-stopped
@@ -189,7 +189,7 @@ services:
     networks: [arrnet]
 
   unpackerr:
-    image: golift/unpackerr:latest
+    image: golift/unpackerr:latest@sha256:a9e7eb0d7b0ca16d2bdcb5af52eb4b544053ad6d915dd9b0f8383bc83f1df5cc
     container_name: unpackerr
     user: "1000:1000"
     environment:
