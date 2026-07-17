@@ -145,7 +145,7 @@ services:
       - 5055:5055
 
   heimdall:
-    image: lscr.io/linuxserver/heimdall:latest@sha256:adb467b90b825f44d7e4c1764191f4fa0a7c38cff6ff050407f7aeb3514bdbe1
+    image: lscr.io/linuxserver/heimdall:latest@sha256:c829ee25e075cf125241edd3ae5ca8d63f8e98f1f207d829ce787665ad98f008
     container_name: heimdall
     environment:
       - PUID=1000
