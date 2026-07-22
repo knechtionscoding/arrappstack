@@ -196,7 +196,7 @@ services:
     networks: [arrnet]
 
   namer:
-    image: ghcr.io/theporndatabase/namer:latest
+    image: ghcr.io/theporndatabase/namer:latest@sha256:a44fcb12382b00d2e4ea731061b11860ce7d967041402c780c62b73e34bf5750
     container_name: namer
     environment:
       - PUID=1000
@@ -264,7 +264,7 @@ services:
     restart: unless-stopped
 
   tailscale:
-    image: tailscale/tailscale:latest
+    image: tailscale/tailscale:latest@sha256:f15d5d3f4a68773a853180b72496f70ba614b64de0878c43fe3da39fe0afba47
     container_name: tailscale
     hostname: home-nas
     cap_add:
