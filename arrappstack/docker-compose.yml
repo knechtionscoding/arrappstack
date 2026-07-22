@@ -181,12 +181,36 @@ services:
         while :; do
           rclone copy "seedbox:/home/seedit4me/torrents/qbittorrent" "/data/seedbox-sync/qbittorrent" \
             --transfers=4 --checkers=8 --fast-list \
-            --exclude="**/*.!qB" --exclude="**/.unwanted/**" --min-age 5m --max-age 180h \
+            --exclude="**/*.!qB" --exclude="**/.unwanted/**" \
+            --exclude="**/*.exe" --exclude="**/*.scr" --exclude="**/*.bat" --exclude="**/*.cmd" --exclude="**/*.js" --exclude="**/*.vbs" \
+            --min-age 5m --max-age 180h \
             --copy-links --create-empty-src-dirs \
             --use-json-log --log-level=INFO --stats=30s;
+
+          echo "Cleaning up hardlinked (already-imported) files older than 24h...";
+          find /data/seedbox-sync/qbittorrent -type f \( -iname "*.mp4" -o -iname "*.mkv" \) -links +1 -mtime +1 -delete;
+          find /data/seedbox-sync/qbittorrent -type d -empty -delete;
+
           sleep 300;
         done
     networks: [arrnet]
+
+  namer:
+    image: ghcr.io/theporndatabase/namer:latest
+    container_name: namer
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+      - NAMER_CONFIG=/config/namer.cfg
+
+    volumes:
+      - ./namer/namer.cfg:/config/namer.cfg
+      - /volume1/data/media/adult:/data
+    restart: unless-stopped
+    networks: [arrnet]
+    ports:
+      - 6980:6980
 
   unpackerr:
     image: golift/unpackerr:latest@sha256:4ec141eeb0cb2f971d7c92f21cc40b0d2d50d7920eb7a0557443cca52270c0b0
@@ -254,6 +278,7 @@ services:
       - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_USERSPACE=false
+      - TS_EXTRA_ARGS=--netfilter-mode=off
     restart: unless-stopped
     network_mode: host
     privileged: true
@@ -268,6 +293,7 @@ volumes:
   plex_config:
   overseerr_config:
   bazarr_config:
+  namer_config:
 
 networks:
   arrnet:
