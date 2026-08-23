@@ -101,7 +101,7 @@ services:
       - 6969:6969
 
   radarr:
-    image: lscr.io/linuxserver/radarr:latest@sha256:e35056574cdc695a9ee745aa1ecda9eab3842450bf4b7b8471b023790fa3861d
+    image: lscr.io/linuxserver/radarr:latest@sha256:119aaa4a4f7349bcd2a136c5373a0d7925b5479915c7dfe0c0ad352db2a6d438
     container_name: radarr
     environment:
       - PUID=1000
