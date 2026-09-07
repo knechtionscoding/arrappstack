@@ -166,14 +166,11 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Europe/Stockholm
-      - RCLONE_CONFIG=/dev/null
-      - RCLONE_CONFIG_SEEDBOX_TYPE=sftp
-      - RCLONE_CONFIG_SEEDBOX_HOST=137.ftl11.seedit4.me
-      - RCLONE_CONFIG_SEEDBOX_PORT=2113
-      - RCLONE_CONFIG_SEEDBOX_USER=seedit4me
+      - RCLONE_CONFIG=/config/rclone.conf
       - RCLONE_CONFIG_SEEDBOX_PASS=${RCLONE_SEEDBOX_OBSCURED_PASS}
     volumes:
       - /volume1/data:/data
+      - /volume1/home/hknecht/arrappstack/rclone:/config:ro
     entrypoint: /bin/sh
     command:
       - -c
@@ -185,7 +182,7 @@ services:
             --exclude="**/*.exe" --exclude="**/*.scr" --exclude="**/*.bat" --exclude="**/*.cmd" --exclude="**/*.js" --exclude="**/*.vbs" \
             --min-age 5m --max-age 180h \
             --copy-links --create-empty-src-dirs \
-            --use-json-log --log-level=INFO --stats=30s;
+            --use-json-log --log-level=NOTICE --stats=30s;
 
           echo "Cleaning up hardlinked (already-imported) files older than 24h...";
           find /data/seedbox-sync/qbittorrent -type f \( -iname "*.mp4" -o -iname "*.mkv" \) -links +1 -mtime +1 -delete;
