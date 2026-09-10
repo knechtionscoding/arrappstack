@@ -228,7 +228,7 @@ services:
         condition: service_started
 
   plex:
-    image: plexinc/pms-docker@sha256:a2b03d75aa16f422488c692935cab476d966b75f2af3c93bb6d910c6051906f5
+    image: plexinc/pms-docker@sha256:e0ab27395614a8e1a4fdf84c6bc60ac664915cfdde70c52d030c7728a1c48e14
     container_name: plex
     environment:
       - TZ=Europe/Stockholm
