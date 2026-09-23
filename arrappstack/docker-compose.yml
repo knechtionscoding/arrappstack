@@ -57,7 +57,7 @@ services:
       - 8191:8191
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest@sha256:4fd7a166c8f46dd3370a871c250ee577d6c2ae97a0dbe0e3614b5ef736205620
+    image: lscr.io/linuxserver/prowlarr:latest@sha256:f2b26429893d4c4cb71941b7ee50b1bdecd9d5f9f9e02d5410615e9f4f7c8d95
     container_name: prowlarr
     environment:
       - PUID=1000
