@@ -244,7 +244,7 @@ services:
     restart: unless-stopped
 
   tailscale:
-    image: tailscale/tailscale:latest
+    image: tailscale/tailscale:latest@sha256:c507f3a2a6ab1cabd8d809b98edeb41edbd5c3fb6ad9632ffd098b4c7d0b4065
     container_name: tailscale
     hostname: home-nas
     cap_add:
