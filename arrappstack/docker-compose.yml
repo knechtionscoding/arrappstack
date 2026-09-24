@@ -86,7 +86,7 @@ services:
       - 8989:8989
 
   whisparr:
-    image: ghcr.io/thespad/whisparr:latest@sha256:351eab59ee4a66c217d7f5004da53857012291b543a0f4767c14a505a76f3fda
+    image: ghcr.io/thespad/whisparr:latest@sha256:dc1e49ebacd1fd70da20dcaef1d41c0d6b701f3e28b23e2b91626318a6616936
     container_name: whisparr
     environment:
       - PUID=1000
