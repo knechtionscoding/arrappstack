@@ -160,7 +160,7 @@ services:
       - 8443:443
 
   rclone-seedbox-pull:
-    image: rclone/rclone:latest@sha256:c61954aaa32328a5486715dd063a81c7879f5195ad3505cd362deddd509dc4a1
+    image: rclone/rclone:latest@sha256:2687085f718d3c628f7fdfb77c52a1d344332aed543110bb88088f2c70d43eb5
     container_name: rclone-seedbox-pull
     user: "1000:1000"
     restart: unless-stopped
