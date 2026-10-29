@@ -228,7 +228,7 @@ services:
 
   tailscale:
     <<: *hardened
-    image: tailscale/tailscale:latest   # pin a digest like the others
+    image: tailscale/tailscale:latest@sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c   # pin a digest like the others
     container_name: tailscale
     hostname: home-nas
     cap_add:
