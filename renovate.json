@@ -60,7 +60,6 @@
         "/^ghcr\\.io/cross-seed/cross-seed/",
         "/^ghcr\\.io/thijmengthn/swaparr/",
         "/^rclone/rclone/",
-        "/^lscr\\.io/linuxserver/heimdall/",
         "/^golift/unpackerr/",
         "/^lscr\\.io/linuxserver/sabnzbd/",
         "/^lscr\\.io/linuxserver/nzbget/"

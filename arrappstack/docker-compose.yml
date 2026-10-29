@@ -116,19 +116,6 @@ services:
     ports:
       - 5055:5055
 
-  heimdall:
-    <<: [*hardened, *lsio-caps]
-    image: lscr.io/linuxserver/heimdall:latest@sha256:928b80d532929a3ff4f53bd49437c721e76334a6d4c9d3d992e522b9ccdd08c2
-    container_name: heimdall
-    environment: *lsio-env
-    volumes:
-      - heimdall_config:/config
-    restart: unless-stopped
-    networks: [arrnet]
-    ports:
-      - 8083:80
-      # 8443 dropped: use the plain port on LAN/Tailscale, or put TLS in front
-
   rclone-seedbox-pull:
     <<: *hardened
     image: rclone/rclone:latest@sha256:2687085f718d3c628f7fdfb77c52a1d344332aed543110bb88088f2c70d43eb5
@@ -259,7 +246,6 @@ volumes:
   radarr_config:
   whisparr_config:
   qbittorrent_config:
-  heimdall_config:
   plex_config:          # old, compromised — keep for investigation, then delete
   plex_config_new:
   overseerr_config:
