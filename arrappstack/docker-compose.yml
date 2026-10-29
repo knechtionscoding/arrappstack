@@ -159,7 +159,7 @@ services:
 
   unpackerr:
     <<: *hardened
-    image: golift/unpackerr:latest@sha256:95ed846fb79cc870c7d745acaebf7e49883a29c5625e4679f9a1aded6f283304
+    image: golift/unpackerr:latest@sha256:fc8b69571033f197d4db5cf22a573acb3bb891c9f8033431b9a1fcf679ca3e9c
     container_name: unpackerr
     user: "1000:1000"
     cap_drop: [ALL]
