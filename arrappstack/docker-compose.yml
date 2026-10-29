@@ -42,7 +42,7 @@ services:
 
   prowlarr:
     <<: [*hardened, *lsio-caps]
-    image: lscr.io/linuxserver/prowlarr:latest@sha256:4fd7a166c8f46dd3370a871c250ee577d6c2ae97a0dbe0e3614b5ef736205620
+    image: lscr.io/linuxserver/prowlarr:latest@sha256:04be30163fbaf48d6aeee7b5893c9f6614ffbad6d853971df0d6dcdf01c7f104
     container_name: prowlarr
     environment: *lsio-env
     volumes:
