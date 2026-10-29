@@ -217,6 +217,7 @@ services:
       - TZ=Europe/Stockholm
       - PLEX_UID=1000
       - PLEX_GID=1000
+      - VERSION=latest
     volumes:
       - plex_config_new:/config               # fresh config; keep the old volume for forensics
       - /volume1/data/media:/data/media:ro    # Plex only needs to read media
