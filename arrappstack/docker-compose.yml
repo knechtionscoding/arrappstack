@@ -228,19 +228,24 @@ services:
 
   tailscale:
     <<: *hardened
-    image: tailscale/tailscale:latest   # pin a digest like the others
+    image: tailscale/tailscale:latest@sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c
     container_name: tailscale
-    hostname: home-nas
     cap_add:
       - NET_ADMIN
       - NET_RAW
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
-      - ./tailscale-state:/var/lib/tailscale
+      # Named volume: independent of the directory compose is run from, so the
+      # node identity can't silently go missing and force a fresh login.
+      - tailscale_state:/var/lib/tailscale
     environment:
-      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}   # can be removed once the node is authenticated
+      - TS_HOSTNAME=home-nas
       - TS_STATE_DIR=/var/lib/tailscale
+      # Only used when there is no saved state (first boot). Once logged in, the
+      # node identity lives in tailscale_state and the key is never needed again.
+      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY:-}
+      - TS_AUTH_ONCE=true
       - TS_USERSPACE=false
       - TS_EXTRA_ARGS=--netfilter-mode=off
     restart: unless-stopped
@@ -258,6 +263,7 @@ volumes:
   plex_config_new:
   overseerr_config:
   bazarr_config:
+  tailscale_state:
 
 networks:
   arrnet:
