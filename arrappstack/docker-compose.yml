@@ -54,7 +54,7 @@ services:
 
   sonarr:
     <<: [*hardened, *lsio-caps]
-    image: lscr.io/linuxserver/sonarr:latest@sha256:24acea2956a0ccb11f103877d9f4f8576600fb34bff34820ed749c2256dab89f
+    image: lscr.io/linuxserver/sonarr:latest@sha256:48e36b608b461273b9dae857725cd0561a127f2c694b687318f6d0c5ce63e5c9
     container_name: sonarr
     environment: *lsio-env
     volumes:
