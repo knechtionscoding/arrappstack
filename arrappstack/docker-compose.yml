@@ -211,7 +211,7 @@ services:
 
   plex:
     <<: *hardened
-    image: plexinc/pms-docker:latest   # pull fresh, then re-pin with @sha256:...
+    image: plexinc/pms-docker:latest@sha256:6d778d41daae68f89115aa87a44ae14a96b23e71a2093da173b5a9aac4091336   # pull fresh, then re-pin with @sha256:...
     container_name: plex
     environment:
       - TZ=Europe/Stockholm
