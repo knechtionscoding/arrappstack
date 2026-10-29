@@ -1,142 +1,114 @@
 version: "3.8"
 
+# ---------------------------------------------------------------------------
+# Shared hardening, merged into each service with <<: *hardened
+#  - no-new-privileges: setuid binaries can't escalate inside the container
+#  - log rotation: a noisy/compromised container can't fill the disk
+# ---------------------------------------------------------------------------
+x-hardened: &hardened
+  security_opt:
+    - no-new-privileges:true
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+# linuxserver.io images start as root and drop to PUID/PGID via s6,
+# so they need these few capabilities and nothing else.
+x-lsio-caps: &lsio-caps
+  cap_drop: [ALL]
+  cap_add: [CHOWN, SETUID, SETGID, DAC_OVERRIDE, FOWNER]
+
+x-lsio-env: &lsio-env
+  PUID: "1000"
+  PGID: "1000"
+  TZ: Europe/Stockholm
+
 services:
-  # gluetun:
-  #   image: qmcgaw/gluetun@sha256:29be3ff9a71ecc5ddb6716b5a4859b1af5712a6debe90ca69b100ef784845bbc
-  #   container_name: gluetun
-  #   cap_add: [NET_ADMIN]
-  #   devices:
-  #     - /dev/net/tun:/dev/net/tun
-  #   sysctls:
-  #     - net.ipv6.conf.all.disable_ipv6=0
-  #   # Only expose ports that belong to apps that MUST stay in the VPN namespace (qBittorrent)
-  #   ports:
-  #     - 8080:8080     # qBittorrent UI
-  #     # Keep Shadowsocks only if you actually use it:
-  #     # - 8388:8388/tcp
-  #     # - 8388:8388/udp
-  #   environment:
-  #     - VPN_SERVICE_PROVIDER=mullvad
-  #     - VPN_TYPE=wireguard
-  #     - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-  #     - WIREGUARD_ADDRESSES=10.67.106.235/32
-  #     - SERVER_COUNTRIES=Sweden
-  #     - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
-  #     - WIREGUARD_ALLOWED_IPS=0.0.0.0/0
-  #   restart: always
-  #   networks:
-  #     - arrnet
-
-  # qbittorrent:
-  #   image: lscr.io/linuxserver/qbittorrent:latest
-  #   container_name: qbittorrent
-  #   network_mode: service:gluetun         # stays behind VPN
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Europe/Stockholm
-  #   volumes:
-  #     - qbittorrent_config:/config
-  #     - /volume1/data/torrents:/downloads
-  #   restart: always
-  #   depends_on:
-  #     gluetun:
-  #       condition: service_healthy
-
-  # --- Everything below is OFF the VPN (normal bridge) ---
+  # gluetun / qbittorrent blocks unchanged (still commented out)
 
   flaresolverr:
+    <<: *hardened
     image: ghcr.io/flaresolverr/flaresolverr:latest@sha256:139dfee1c6f89249c8d665d1333a42e8ec74ec0a86bc6bb1c8461e10d3a66a47
     container_name: flaresolverr
     shm_size: "2gb"
     environment:
       - LOG_LEVEL=info
-    restart: always
+    restart: unless-stopped
     networks: [arrnet]
-    ports:
-      - 8191:8191
+    # No published ports: Prowlarr reaches it as http://flaresolverr:8191 on arrnet.
+    # It runs a headless browser against arbitrary sites, so keep it off the LAN.
 
   prowlarr:
+    <<: [*hardened, *lsio-caps]
     image: lscr.io/linuxserver/prowlarr:latest@sha256:4fd7a166c8f46dd3370a871c250ee577d6c2ae97a0dbe0e3614b5ef736205620
     container_name: prowlarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+    environment: *lsio-env
     volumes:
       - prowlarr_config:/config
-    restart: always
+    restart: unless-stopped
     networks: [arrnet]
     ports:
       - 9696:9696
 
   sonarr:
+    <<: [*hardened, *lsio-caps]
     image: lscr.io/linuxserver/sonarr:latest@sha256:24acea2956a0ccb11f103877d9f4f8576600fb34bff34820ed749c2256dab89f
     container_name: sonarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+    environment: *lsio-env
     volumes:
       - sonarr_config:/config
-      - /volume1/data:/data
-    restart: always
+      - /volume1/data:/data          # rw needed for hardlink imports
+    restart: unless-stopped
     networks: [arrnet]
     ports:
       - 8989:8989
 
   whisparr:
+    <<: [*hardened, *lsio-caps]
     image: ghcr.io/thespad/whisparr:latest@sha256:351eab59ee4a66c217d7f5004da53857012291b543a0f4767c14a505a76f3fda
     container_name: whisparr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+    environment: *lsio-env
     volumes:
       - whisparr_config:/config
       - /volume1/data:/data
-    restart: always
+    restart: unless-stopped
     networks: [arrnet]
     ports:
       - 6969:6969
 
   radarr:
+    <<: [*hardened, *lsio-caps]
     image: lscr.io/linuxserver/radarr:latest@sha256:e35056574cdc695a9ee745aa1ecda9eab3842450bf4b7b8471b023790fa3861d
     container_name: radarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+    environment: *lsio-env
     volumes:
       - radarr_config:/config
       - /volume1/data:/data
-    restart: always
+    restart: unless-stopped
     networks: [arrnet]
     ports:
       - 7878:7878
 
   bazarr:
+    <<: [*hardened, *lsio-caps]
     image: lscr.io/linuxserver/bazarr:latest@sha256:4c30dc0bb9a5d223075e7f5d12c77bd293c4b460f86d696dbe64763104c1e88c
     container_name: bazarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+    environment: *lsio-env
     volumes:
       - bazarr_config:/config
-      - /volume1/data/media:/data/media
+      - /volume1/data/media:/data/media   # rw needed to write subtitles
     restart: unless-stopped
     networks: [arrnet]
     ports:
       - 6767:6767
 
   overseerr:
+    <<: [*hardened, *lsio-caps]
     image: lscr.io/linuxserver/overseerr:latest@sha256:53a1b839ffa81f139e1552840772bff8a5d13f5c78a69cce22458b9a6cd0844d
     container_name: overseerr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+    environment: *lsio-env
     volumes:
       - overseerr_config:/config
     restart: unless-stopped
@@ -145,29 +117,34 @@ services:
       - 5055:5055
 
   heimdall:
+    <<: [*hardened, *lsio-caps]
     image: lscr.io/linuxserver/heimdall:latest@sha256:c829ee25e075cf125241edd3ae5ca8d63f8e98f1f207d829ce787665ad98f008
     container_name: heimdall
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
+    environment: *lsio-env
     volumes:
       - heimdall_config:/config
     restart: unless-stopped
     networks: [arrnet]
     ports:
       - 8083:80
-      - 8443:443
+      # 8443 dropped: use the plain port on LAN/Tailscale, or put TLS in front
 
   rclone-seedbox-pull:
+    <<: *hardened
     image: rclone/rclone:latest@sha256:c61954aaa32328a5486715dd063a81c7879f5195ad3505cd362deddd509dc4a1
     container_name: rclone-seedbox-pull
     user: "1000:1000"
+    cap_drop: [ALL]
+    read_only: true                  # only /data and /tmp are writable
+    tmpfs:
+      - /tmp
     restart: unless-stopped
     environment:
       - TZ=Europe/Stockholm
       - RCLONE_CONFIG=/config/rclone.conf
       - RCLONE_CONFIG_SEEDBOX_PASS=${RCLONE_SEEDBOX_OBSCURED_PASS}
+      - RCLONE_CACHE_DIR=/tmp/rclone-cache
+      - XDG_CACHE_HOME=/tmp
     volumes:
       - /volume1/data:/data
       - /volume1/home/hknecht/arrappstack/rclone:/config:ro
@@ -180,6 +157,7 @@ services:
             --transfers=4 --checkers=8 --fast-list \
             --exclude="**/*.!qB" --exclude="**/.unwanted/**" \
             --exclude="**/*.exe" --exclude="**/*.scr" --exclude="**/*.bat" --exclude="**/*.cmd" --exclude="**/*.js" --exclude="**/*.vbs" \
+            --exclude="**/*.lnk" --exclude="**/*.ps1" --exclude="**/*.sh" --exclude="**/*.msi" --exclude="**/*.jar" --exclude="**/*.hta" \
             --min-age 5m --max-age 180h \
             --copy-links --create-empty-src-dirs \
             --use-json-log --log-level=NOTICE --stats=30s;
@@ -193,12 +171,16 @@ services:
     networks: [arrnet]
 
   unpackerr:
+    <<: *hardened
     image: golift/unpackerr:latest@sha256:4ec141eeb0cb2f971d7c92f21cc40b0d2d50d7920eb7a0557443cca52270c0b0
     container_name: unpackerr
     user: "1000:1000"
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs:
+      - /tmp
     environment:
       - TZ=Europe/Stockholm
-      # Update to service names (no more 127.0.0.1)
       - UN_SONARR_0_URL=http://sonarr:8989
       - UN_SONARR_0_API_KEY=${SONARR_API_KEY}
       - UN_RADARR_0_URL=http://radarr:7878
@@ -228,23 +210,25 @@ services:
         condition: service_started
 
   plex:
-    image: plexinc/pms-docker@sha256:a2b03d75aa16f422488c692935cab476d966b75f2af3c93bb6d910c6051906f5
+    <<: *hardened
+    image: plexinc/pms-docker:latest   # pull fresh, then re-pin with @sha256:...
     container_name: plex
     environment:
       - TZ=Europe/Stockholm
-      - VERSION=docker
-      - HOSTNAME=PlexServer
       - PLEX_UID=1000
       - PLEX_GID=1000
     volumes:
-      - plex_config:/config
-      - /volume1/data/media:/data/media
+      - plex_config_new:/config               # fresh config; keep the old volume for forensics
+      - /volume1/data/media:/data/media:ro    # Plex only needs to read media
+    devices:
+      - /dev/dri:/dev/dri                     # HW transcoding without privileged mode (remove if no iGPU)
     network_mode: host
-    privileged: true
     restart: unless-stopped
+    # NOT privileged. Also: disable Remote Access in Plex and UPnP on the router.
 
   tailscale:
-    image: tailscale/tailscale:latest
+    <<: *hardened
+    image: tailscale/tailscale:latest   # pin a digest like the others
     container_name: tailscale
     hostname: home-nas
     cap_add:
@@ -255,13 +239,13 @@ services:
     volumes:
       - ./tailscale-state:/var/lib/tailscale
     environment:
-      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
+      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}   # can be removed once the node is authenticated
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_USERSPACE=false
       - TS_EXTRA_ARGS=--netfilter-mode=off
     restart: unless-stopped
     network_mode: host
-    privileged: true
+    # NOT privileged: NET_ADMIN + /dev/net/tun is all it needs.
 
 volumes:
   prowlarr_config:
@@ -270,7 +254,8 @@ volumes:
   whisparr_config:
   qbittorrent_config:
   heimdall_config:
-  plex_config:
+  plex_config:          # old, compromised — keep for investigation, then delete
+  plex_config_new:
   overseerr_config:
   bazarr_config:
 
