@@ -80,7 +80,7 @@ services:
 
   radarr:
     <<: [*hardened, *lsio-caps]
-    image: lscr.io/linuxserver/radarr:latest@sha256:084b3b2ab1d0ef930660727259546a241f2bdf67c9ed085d54bf1486a6887c9b
+    image: lscr.io/linuxserver/radarr:latest@sha256:044788f5508b7f67a3e0368cdd142c77c4d4cd5aec2efaba53e1a68b6b6231e7
     container_name: radarr
     environment: *lsio-env
     volumes:
