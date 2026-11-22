@@ -67,7 +67,7 @@ services:
 
   whisparr:
     <<: [*hardened, *lsio-caps]
-    image: ghcr.io/thespad/whisparr:latest@sha256:a74aaf3a9a149c92406088aa740edcf65839e271e22a27165bbc08c525b6012c
+    image: ghcr.io/thespad/whisparr:latest@sha256:f76b20d823bce8714742d45f3bf4f5f200af9415e948705f57cecf4c402d97cc
     container_name: whisparr
     environment: *lsio-env
     volumes:
